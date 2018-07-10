@@ -8,17 +8,19 @@ Download via Gradle:
 
   Add repository
 
-```allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
+```
+allprojects {
+	repositories {
+		...
+		maven { url 'https://jitpack.io' }
 	}
+}
 ```
 
 and include the dependency
 
-```dependencies {
+```
+dependencies {
     implementation 'com.github.franrc:MagentoApi:1.0'
 }
 ```
@@ -29,21 +31,21 @@ or Maven:
   
 ```xml
 <repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
+	<repository>
+	    <id>jitpack.io</id>
+	    <url>https://jitpack.io</url>
+	</repository>
+</repositories>
 ```
 
 and add the dependency
 
 ```xml
 <dependency>
-	    <groupId>com.github.franrc</groupId>
-	    <artifactId>MagentoApi</artifactId>
-	    <version>1.0</version>
-	</dependency>
+    <groupId>com.github.franrc</groupId>
+    <artifactId>MagentoApi</artifactId>
+    <version>1.0</version>
+</dependency>
 ```
 
 Yo can configure Magento data like this : 
@@ -63,17 +65,17 @@ To retrieve data, the usage is like this:
 ```
 
 new MagentoRestService(this).getMe(new ServiceCallbackOnlyOnServiceResults<MagentoResponse<Customer>>() {
-            @Override
-            public void onResults(MagentoResponse<Customer> results) {
-                if(results == null) Log.i("Magento", "null");
-                else {
-                    if (results.getError() == null)
-                        Log.i("Magento", results.getData() != null ? results.getData().getFirstname() : "nulo");
-                    else {
-                        Log.i("Magento", "Error: " + results.getError().getError());
-                    }
-                }
-            }
-        });
+    @Override
+    public void onResults(MagentoResponse<Customer> results) {
+	if(results == null) Log.i("Magento", "null");
+	else {
+	    if (results.getError() == null)
+		Log.i("Magento", results.getData() != null ? results.getData().getFirstname() : "nulo");
+	    else {
+		Log.i("Magento", "Error: " + results.getError().getError());
+	    }
+	}
+    }
+});
  ```
 
