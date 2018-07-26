@@ -21,7 +21,7 @@ and include the dependency
 
 ```
 dependencies {
-    implementation 'com.github.franrc:MagentoApi:1.0'
+    implementation 'com.github.franrc:MagentoApi:1.0.1'
 }
 ```
 
