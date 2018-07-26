@@ -1,0 +1,76 @@
+package com.dekalabs.magentorestapi.utils;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class FilterOptions {
+
+    public static String EQUALS = "eq";
+    public static String LIKE = "like";
+
+    public enum SORT_DIRECTION { ASC, DESC }
+
+    Map<String, String> filterMap;
+    int andValue = 0;
+    int orValue = 0;
+
+    int sortValue = 0;
+
+    boolean canAdd;
+
+    public FilterOptions() {
+        filterMap = new HashMap<>();
+        canAdd = true;
+    }
+
+
+    public FilterOptions addFilter(String name, String value, String conditionType) {
+        if(! canAdd) {
+            throw new IllegalStateException("You must call and() or or() before add any filter");
+        }
+
+        filterMap.put("searchCriteria[filterGroups]["+ andValue + "][filters]["+ orValue +"][field]", name);
+        filterMap.put("searchCriteria[filterGroups]["+ andValue + "][filters]["+ orValue +"][value]", value);
+        filterMap.put("searchCriteria[filterGroups]["+ andValue  + "][filters]["+ orValue +"][conditionType]", conditionType    );
+
+        canAdd = false;
+
+        return this;
+    }
+
+    public FilterOptions sort(String name, SORT_DIRECTION direction) {
+        filterMap.put("searchCriteria[sortOrders]["+ sortValue + "][field]", name);
+        filterMap.put("searchCriteria[sortOrders]["+ sortValue + ")][direction]", direction.name());
+
+        sortValue++;
+
+        return this;
+    }
+
+    public FilterOptions and() {
+        andValue++;
+        orValue = 0;
+
+        canAdd = true;
+
+        return this;
+    }
+
+    public FilterOptions or() {
+        orValue++;
+
+        canAdd = true;
+
+        return this;
+    }
+
+    public FilterOptions showFields(String fields) {
+        filterMap.put("fields", fields);
+        return this;
+    }
+
+    public Map<String, String> build() {
+        return filterMap;
+    }
+
+}
