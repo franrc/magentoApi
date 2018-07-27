@@ -6,6 +6,7 @@ import android.util.Log;
 import com.dekalabs.magentorestapi.MagentoRestService;
 import com.dekalabs.magentorestapi.ServiceCallbackOnlyOnServiceResults;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
+import com.dekalabs.magentorestapi.handler.FinishHandler;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.utils.PreferencesManager;
 
@@ -67,7 +68,9 @@ public class MagentoRestConfiguration {
             return this;
         }
 
-        public void build() {
+        public void build(FinishHandler finishHandler) {
+            if(finishHandler == null) throw new IllegalArgumentException("FinishHandler could not be null");
+
             APP_URL = appUrl;
             ACCESS_TOKEN = accessToken;
             CONSUMER_KEY = consumerKey;
@@ -91,8 +94,12 @@ public class MagentoRestConfiguration {
                         PreferencesManager.getInstance().setAttrCacheTime();
 
                         Log.i("Sample", (results != null ? String.valueOf(results.getItems().size()) : "vacío"));
+                        finishHandler.onFinish();
                     }
                 });
+            }
+            else {
+                finishHandler.onFinish();
             }
         }
     }

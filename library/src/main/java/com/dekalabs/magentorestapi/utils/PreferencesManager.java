@@ -43,11 +43,12 @@ public class PreferencesManager {
     }
 
     public boolean mustLoadCategoriesOf(Long categoryId){
-        Long oldTimestamp = sharedPreferences.getLong(CACHE_PREF_CATEGORY + categoryId,  0);
-
-        Long currentTimestamp = new Date().getTime();
-
-        return (currentTimestamp - oldTimestamp) > CATEGORY_CACHE_TIME;
+//        Long oldTimestamp = sharedPreferences.getLong(CACHE_PREF_CATEGORY + categoryId,  0);
+//
+//        Long currentTimestamp = new Date().getTime();
+//
+//        return (currentTimestamp - oldTimestamp) > CATEGORY_CACHE_TIME;
+        return true;
     }
 
 
@@ -56,11 +57,12 @@ public class PreferencesManager {
     }
 
     public boolean mustLoadAttrs(){
-        Long oldTimestamp = sharedPreferences.getLong(CACHE_PREF_ATTR,  0);
-
-        Long currentTimestamp = new Date().getTime();
-
-        return (currentTimestamp - oldTimestamp) > CATEGORY_CACHE_TIME;
+//        Long oldTimestamp = sharedPreferences.getLong(CACHE_PREF_ATTR,  0);
+//
+//        Long currentTimestamp = new Date().getTime();
+//
+//        return (currentTimestamp - oldTimestamp) > CATEGORY_CACHE_TIME;
+        return true;
     }
 
     public void clear(){

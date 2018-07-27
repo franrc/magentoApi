@@ -43,7 +43,7 @@ public interface MagentoService {
     Call<ResponseBody> updateCustomer(@Body Customer customer);
 
     @GET("categories/list")
-    Call<Category> getCategoriesByParent(@QueryMap Map<String, String> parameters);
+    Call<MagentoListResponse<Category>> getCategoriesByParent(@QueryMap Map<String, String> parameters);
 
     @GET("categories/{categoryId}")
     Call<Category> getCategoryDetail(@Query("categoryId") Long categoryId, @Query("storeId") Long storeId);

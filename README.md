@@ -21,7 +21,7 @@ and include the dependency
 
 ```
 dependencies {
-    implementation 'com.github.franrc:MagentoApi:1.0.1'
+    implementation 'com.github.franrc:MagentoApi:1.1.1'
 }
 ```
 
@@ -54,7 +54,7 @@ Yo can configure Magento data like this :
 DKRestService.setIsOnDebug(true);  // If setIsOnDebug is true, retrofit will log request and responses
         
 new MagentoRestConfiguration.Builder().setAccessToken("09rxxxxxxxxxxxxxxxxx")
-                                      .setAppUrl("http://dev-magentoapp.xxxxxx/rest/..").build();
+                                      .setAppUrl("http://dev-magentoapp.xxxxxx/rest/..").build(() -> start(););
 
 It's also possible configure the consumerKey and ConsumerSecret constants
 

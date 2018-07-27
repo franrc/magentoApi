@@ -84,4 +84,19 @@ public class CustomAttribute extends RealmObject implements Parcelable {
             return new CustomAttribute[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CustomAttribute that = (CustomAttribute) o;
+
+        return attributeCode != null ? attributeCode.equals(that.attributeCode) : that.attributeCode == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return attributeCode != null ? attributeCode.hashCode() : 0;
+    }
 }

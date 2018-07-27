@@ -109,23 +109,22 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
     public void getCategoryList(Long root, ServiceCallbackOnlyOnServiceResults<List<Category>> callback) {
 
-        if (PreferencesManager.getInstance().mustLoadCategoriesOf(root)) {
+        final Long categoryRoot = root == null ? MagentoRestConfiguration.getRootCategoryId() : root;
 
-            ServiceCallbackOnlyOnServiceResults<MagentoResponse<Category>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoResponse<Category>>() {
+        if (PreferencesManager.getInstance().mustLoadCategoriesOf(categoryRoot)) {
+
+            ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Category>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Category>>() {
                 @Override
-                public void onResults(MagentoResponse<Category> results) {
+                public void onResults(MagentoListResponse<Category> results) {
                     if(results == null) return;
 
                     if(results.getError() == null) {
-                        Category category = results.getData();
 
-                        if(category != null) {
-                            DatabaseUtils.getInstance().saveCategories(root, category.getChildrenData());
-                        }
+                        DatabaseUtils.getInstance().saveCategories(categoryRoot, results.getItems());
 
-                        callback.onResults(DatabaseUtils.getInstance().getCategoriesByParent(root));
+                        callback.onResults(DatabaseUtils.getInstance().getCategoriesByParent(categoryRoot));
 
-                        PreferencesManager.getInstance().setCategoryCacheTime(root);
+                        PreferencesManager.getInstance().setCategoryCacheTime(categoryRoot);
                     }
                     else {
                         Log.e("MagentoRestService", "Error retrieving customAttributes: " + results.getError().getError());
@@ -144,14 +143,14 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                     new FilterOptions()
                             .addFilter("include_in_menu", "1", FilterOptions.EQUALS)
                             .and()
-                            .addFilter("parent_id", String.valueOf(root != null ? root : MagentoRestConfiguration.getRootCategoryId()), FilterOptions.EQUALS)
+                            .addFilter("parent_id", String.valueOf(categoryRoot), FilterOptions.EQUALS)
                             .build();
 
-            executeOnline(firstCallback, service.getCategoriesByParent(filterParams));
+            executeListOnline(firstCallback, service.getCategoriesByParent(filterParams));
 
         }
         else {
-            callback.onResults(DatabaseUtils.getInstance().getCategoriesByParent(root));
+            callback.onResults(DatabaseUtils.getInstance().getCategoriesByParent(categoryRoot));
             callback.onFinish();
         }
     }
@@ -162,6 +161,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
     public void getProductsByCategory(Long categoryId, ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Product>> callback) {
 
+        final Long categoryID = categoryId == null ? MagentoRestConfiguration.getRootCategoryId() : categoryId;
 
         ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Product>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Product>>() {
             @Override
@@ -169,10 +169,10 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                 if(results == null) return;
 
                 if(results.getError() == null) {
-                    DatabaseUtils.getInstance().saveProducts(categoryId, results.getItems());
+                    DatabaseUtils.getInstance().saveProducts(categoryID, results.getItems());
 
                     MagentoListResponse<Product> magentoList = new MagentoListResponse<>();
-                    magentoList.setItems(DatabaseUtils.getInstance().getProductsByCategory(categoryId));
+                    magentoList.setItems(DatabaseUtils.getInstance().getProductsByCategory(categoryID));
 
                     callback.onResults(magentoList);
                 }
@@ -203,6 +203,8 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
     public void getProductsByCategoryView(Long categoryId, ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Product>> callback) {
 
+        final Long categoryID = categoryId == null ? MagentoRestConfiguration.getRootCategoryId() : categoryId;
+
         ServiceCallbackOnlyOnServiceResults<MagentoResponse<CategoryView>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoResponse<CategoryView>>() {
             @Override
             public void onResults(MagentoResponse<CategoryView> results) {
@@ -212,11 +214,11 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                     CategoryView category = results.getData();
 
                     if(category != null) {
-                        DatabaseUtils.getInstance().saveProducts(categoryId, category.getProductList());
+                        DatabaseUtils.getInstance().saveProducts(categoryID, category.getProductList());
                     }
 
                     MagentoListResponse<Product> magentoList = new MagentoListResponse<>();
-                    magentoList.setItems(DatabaseUtils.getInstance().getProductsByCategory(categoryId));
+                    magentoList.setItems(DatabaseUtils.getInstance().getProductsByCategory(categoryID));
 
                     callback.onResults(magentoList);
                 }

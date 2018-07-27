@@ -7,8 +7,6 @@ import com.dekalabs.magentorestapi.Jackson;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import org.json.JSONObject;
 
@@ -21,7 +19,6 @@ import java.util.Map;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
-import io.realm.annotations.Ignore;
 
 public class Product extends RealmObject implements Parcelable {
 
@@ -276,4 +273,34 @@ public class Product extends RealmObject implements Parcelable {
             return new Product[size];
         }
     };
+
+
+    public String getDescription() {
+        return getCustomAttribute("description");
+    }
+
+    public String getImage() {
+        return getCustomAttribute("image");
+    }
+
+    public String getThumbnail() {
+        return getCustomAttribute("thumbnail");
+    }
+
+    public String getSmallImage() {
+        return getCustomAttribute("small_image");
+    }
+
+
+    public String getCustomAttribute(String code) {
+        if(customAttributes == null) return null;
+
+        return customAttributes.first(new ProductAttributes(code)).getValue();
+    }
+
+    private List<String> getCustomAttributeList(String code) {
+        if(customAttributes == null) return null;
+
+        return customAttributes.first(new ProductAttributes(code)).getValues();
+    }
 }

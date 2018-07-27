@@ -82,6 +82,10 @@ public class ProductAttributes extends RealmObject implements Parcelable {
     public ProductAttributes() {
     }
 
+    public ProductAttributes(String code) {
+        this.attribute = new CustomAttribute(code);
+    }
+
     protected ProductAttributes(Parcel in) {
         this.id = in.readString();
         this.attribute = in.readParcelable(CustomAttribute.class.getClassLoader());
@@ -101,4 +105,21 @@ public class ProductAttributes extends RealmObject implements Parcelable {
             return new ProductAttributes[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ProductAttributes that = (ProductAttributes) o;
+
+        return attribute != null ? attribute.equals(that.attribute) : that.attribute == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return attribute != null ? attribute.hashCode() : 0;
+    }
+
+
 }

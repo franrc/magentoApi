@@ -3,11 +3,18 @@ package com.dekalabs.magentorestapi.pojo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.dekalabs.magentorestapi.Jackson;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -48,6 +55,10 @@ public class Category extends RealmObject implements Parcelable {
 
     @JsonProperty("include_in_menu")
     private boolean includeInMenu;
+
+    private String image;
+
+    private boolean hasChildren;
 
     public Long getId() {
         return id;
@@ -153,6 +164,22 @@ public class Category extends RealmObject implements Parcelable {
         this.includeInMenu = includeInMenu;
     }
 
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public boolean isHasChildren() {
+        return (children != null && !children.isEmpty()) || (childrenData != null && childrenData.size() > 0);
+    }
+
+    public void setHasChildren(boolean hasChildren) {
+        this.hasChildren = hasChildren;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -173,6 +200,7 @@ public class Category extends RealmObject implements Parcelable {
         dest.writeInt(this.productCount);
         dest.writeList(this.childrenData);
         dest.writeByte(this.includeInMenu ? (byte) 1 : (byte) 0);
+        dest.writeString(this.image);
     }
 
     public Category() {
@@ -195,6 +223,7 @@ public class Category extends RealmObject implements Parcelable {
         this.childrenData = new RealmList<>();
         in.readList(this.childrenData, Category.class.getClassLoader());
         this.includeInMenu = in.readByte() != 0;
+        this.image = in.readString();
     }
 
     public static final Parcelable.Creator<Category> CREATOR = new Parcelable.Creator<Category>() {
@@ -208,4 +237,25 @@ public class Category extends RealmObject implements Parcelable {
             return new Category[size];
         }
     };
+
+
+    @SuppressWarnings("unchecked")
+    @JsonProperty("custom_attributes")
+    private void unpackCustomAttrs(List<Map<String,Object>> attrs) {
+
+        if(attrs != null) {
+
+            for(Map<String, Object> attrMap : attrs) {
+
+                Object attrCode = attrMap.get("attribute_code");
+
+                if(attrCode != null && attrCode.toString().equals("image")) {
+                    image = (String)attrMap.get("value");
+
+                    return;
+                }
+
+            }
+        }
+    }
 }
