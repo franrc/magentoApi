@@ -213,11 +213,11 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                 if(results.getError() == null) {
                     CategoryView category = results.getData();
 
-                    if(category != null) {
-                        DatabaseUtils.getInstance().saveProducts(categoryID, category.getProductList());
-                    }
+//                    if(category != null) {
+//                        DatabaseUtils.getInstance().saveProducts(categoryID, category.getProductList());
+//                    }
 
-                    callback.onResults(DatabaseUtils.getInstance().getProductsByCategory(categoryID));
+                    callback.onResults(category.getProductList());
                 }
                 else {
                     Log.e("MagentoRestService", "Error retrieving products: " + results.getError().getError());
@@ -240,7 +240,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                 .showFields("navigation[products[final_price,id,sku,name,type_id,extension_attributes,custom_attributes]]")
                 .build();
 
-        executeOnline(firstCallback, service.getProductsByCategoryView(categoryId, queryString));
+        executeOnline(firstCallback, service.getProductsByCategoryView(categoryID, queryString));
     }
 
     public void getUserDefinedCustomAttributes(ServiceCallbackOnlyOnServiceResults<MagentoListResponse<CustomAttribute>> callback) {
