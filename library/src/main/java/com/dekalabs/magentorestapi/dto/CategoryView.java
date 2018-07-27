@@ -14,7 +14,7 @@ public class CategoryView {
     }
 
 
-    private static class Navigation {
+    public static class Navigation {
         private List<Product> products;
 
         public List<Product> getProducts() {
