@@ -2,8 +2,10 @@ package com.dekalabs.magentorestapi.pojo;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.dekalabs.magentorestapi.Jackson;
+import com.dekalabs.magentorestapi.utils.DatabaseUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,6 +14,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,7 +41,7 @@ public class Product extends RealmObject implements Parcelable {
     @JsonProperty("type_id")
     private String typeId;
 
-    @JsonProperty("custom_attributes")
+    //@JsonProperty("custom_attributes")
     private RealmList<ProductAttributes> customAttributes;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -53,6 +56,9 @@ public class Product extends RealmObject implements Parcelable {
 
     @JsonIgnore
     private ProductStock stock;
+
+    @JsonProperty("final_price")
+    private double finalPrice;
 
     private RealmList<CustomAttribute> configurableAttributes;
 
@@ -180,6 +186,14 @@ public class Product extends RealmObject implements Parcelable {
         this.configurableAttributes = configurableAttributes;
     }
 
+    public double getFinalPrice() {
+        return finalPrice;
+    }
+
+    public void setFinalPrice(double finalPrice) {
+        this.finalPrice = finalPrice;
+    }
+
     @SuppressWarnings("unchecked")
     @JsonProperty("extension_attributes")
     private void unpackExtensionAttrs(Map<String,Object> extension) {
@@ -212,6 +226,42 @@ public class Product extends RealmObject implements Parcelable {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    @JsonProperty("custom_attributes")
+    private void unpackCustomAttrs(List<Map<String,Object>> customAttrs) {
+
+        if(customAttrs == null) return;
+
+        customAttributes = new RealmList<>();
+
+        for(Map<String, Object> attr : customAttrs) {
+
+            String code = (String)attr.get("attribute_code");
+
+            Object value  = attr.get("value");
+
+            if(value instanceof String) {
+                ProductAttributes productAttributes = new ProductAttributes();
+                productAttributes.setAttribute(code);
+                productAttributes.generatePrimaryKey(id);
+                productAttributes.setName(attr.get("name").toString());
+                productAttributes.setValue(new RealmList<>());
+
+                AttributeOption option = DatabaseUtils.getInstance().findAttributeByValue(code, value.toString());
+
+                if(option != null) {
+                    Log.i("MagentoRestApi", "CustomAttribute found : " + option.getLabel());
+                    productAttributes.getValues().add(option.getLabel());
+                }
+                else {
+                    productAttributes.getValues().add(value.toString());
+                }
+
+                customAttributes.add(productAttributes);
+            }
+        }
+    }
+
 
     @Override
     public int describeContents() {
@@ -235,6 +285,7 @@ public class Product extends RealmObject implements Parcelable {
         dest.writeLong(this.updatedAt != null ? this.updatedAt.getTime() : -1);
         dest.writeDouble(this.weight);
         dest.writeParcelable(this.stock, flags);
+        dest.writeDouble(finalPrice);
     }
 
     public Product() {
@@ -260,6 +311,7 @@ public class Product extends RealmObject implements Parcelable {
         this.updatedAt = tmpUpdatedAt == -1 ? null : new Date(tmpUpdatedAt);
         this.weight = in.readDouble();
         this.stock = in.readParcelable(ProductStock.class.getClassLoader());
+        this.finalPrice = in.readDouble();
     }
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {
@@ -293,9 +345,16 @@ public class Product extends RealmObject implements Parcelable {
 
 
     public String getCustomAttribute(String code) {
+
         if(customAttributes == null) return null;
 
-        return customAttributes.first(new ProductAttributes(code)).getValue();
+        int indexOf = customAttributes.indexOf(new ProductAttributes(code));
+
+        if(indexOf == -1) return null;
+//
+        ProductAttributes attribute = customAttributes.get(indexOf);
+
+        return attribute.getValue();
     }
 
     private List<String> getCustomAttributeList(String code) {

@@ -8,7 +8,7 @@ import com.dekalabs.magentorestapi.ServiceCallbackOnlyOnServiceResults;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.handler.FinishHandler;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
-import com.dekalabs.magentorestapi.utils.PreferencesManager;
+import com.dekalabs.magentorestapi.utils.PreferencesCacheManager;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -36,6 +36,8 @@ public class MagentoRestConfiguration {
 
         public Builder(Context context) {
             this.context = context;
+
+            PreferencesCacheManager.initialize(context);
         }
 
         public Builder setAppUrl(String appUrl) {
@@ -68,6 +70,11 @@ public class MagentoRestConfiguration {
             return this;
         }
 
+        public Builder forceReloadData() {
+            PreferencesCacheManager.getInstance().clear();
+            return this;
+        }
+
         public void build(FinishHandler finishHandler) {
             if(finishHandler == null) throw new IllegalArgumentException("FinishHandler could not be null");
 
@@ -78,8 +85,6 @@ public class MagentoRestConfiguration {
             MEDIA_URL_PATH = mediaUrl;
             ROOT_CATEGORY_ID = rootCategoryId;
 
-            PreferencesManager.initialize(context);
-
             Realm.init(context);
             RealmConfiguration realmConfiguration = new RealmConfiguration.Builder()
                     .schemaVersion(0)
@@ -87,11 +92,11 @@ public class MagentoRestConfiguration {
                     .build();
             Realm.setDefaultConfiguration(realmConfiguration);
 
-            if (PreferencesManager.getInstance().mustLoadAttrs()) {
+            if (PreferencesCacheManager.getInstance().mustLoadAttrs()) {
                 new MagentoRestService(context).getUserDefinedCustomAttributes(new ServiceCallbackOnlyOnServiceResults<MagentoListResponse<CustomAttribute>>() {
                     @Override
                     public void onResults(MagentoListResponse<CustomAttribute> results) {
-                        PreferencesManager.getInstance().setAttrCacheTime();
+                        PreferencesCacheManager.getInstance().setAttrCacheTime();
 
                         Log.i("Sample", (results != null ? String.valueOf(results.getItems().size()) : "vacío"));
                         finishHandler.onFinish();

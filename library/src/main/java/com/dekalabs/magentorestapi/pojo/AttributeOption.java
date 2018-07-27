@@ -14,6 +14,8 @@ public class AttributeOption extends RealmObject implements Parcelable {
     private String label;
     private String value;
 
+    private String attributeCode;
+
     public Long getId() {
         return id;
     }
@@ -38,6 +40,14 @@ public class AttributeOption extends RealmObject implements Parcelable {
         this.value = value;
     }
 
+    public String getAttributeCode() {
+        return attributeCode;
+    }
+
+    public void setAttributeCode(String attributeCode) {
+        this.attributeCode = attributeCode;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -48,6 +58,7 @@ public class AttributeOption extends RealmObject implements Parcelable {
         dest.writeValue(this.id);
         dest.writeString(this.label);
         dest.writeString(this.value);
+        dest.writeString(this.attributeCode);
     }
 
     public AttributeOption() {
@@ -57,6 +68,7 @@ public class AttributeOption extends RealmObject implements Parcelable {
         this.id = (Long) in.readValue(Long.class.getClassLoader());
         this.label = in.readString();
         this.value = in.readString();
+        this.attributeCode = in.readString();
     }
 
     public static final Parcelable.Creator<AttributeOption> CREATOR = new Parcelable.Creator<AttributeOption>() {
@@ -70,4 +82,19 @@ public class AttributeOption extends RealmObject implements Parcelable {
             return new AttributeOption[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AttributeOption that = (AttributeOption) o;
+
+        return value != null ? value.equals(that.value) : that.value == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return value != null ? value.hashCode() : 0;
+    }
 }

@@ -4,7 +4,6 @@ import com.dekalabs.magentorestapi.pojo.AttributeOption;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Product;
-import com.dekalabs.magentorestapi.pojo.ProductAttributes;
 
 import java.util.List;
 
@@ -82,6 +81,7 @@ public class DatabaseUtils {
 
             for(AttributeOption option: attr.getOptions()) {
                 option.setId(id++);
+                option.setAttributeCode(attr.getAttributeCode());
             }
         }
 
@@ -104,18 +104,18 @@ public class DatabaseUtils {
         for(Product product : products) {
             product.setCategoryId(categoryId);
 
-            if(product.getCustomAttributes() == null) continue;
-
-            for(ProductAttributes attr : product.getCustomAttributes()) {
-
-                CustomAttribute customAttribute = realm.where(CustomAttribute.class).equalTo("attributeCode", attr.getAttribute().getAttributeCode()).findFirst();
-
-                if(customAttribute != null) {
-                    attr.setAttribute(customAttribute);
-                }
-
-                attr.generatePrimaryKey(product.getId());
-            }
+//            if(product.getCustomAttributes() == null) continue;
+//
+//            for(ProductAttributes attr : product.getCustomAttributes()) {
+//
+//                CustomAttribute customAttribute = realm.where(CustomAttribute.class).equalTo("attributeCode", attr.getAttributeCode()).findFirst();
+//
+//                if(customAttribute != null) {
+//                    attr.setAttribute(customAttribute);
+//                }
+//
+//                attr.generatePrimaryKey(product.getId());
+//            }
         }
 
         realm.copyToRealmOrUpdate(products);
@@ -133,6 +133,21 @@ public class DatabaseUtils {
 
         if(products != null)
             return realm.copyFromRealm(products);
+
+        return null;
+    }
+
+    public AttributeOption findAttributeByValue(String code, String value) {
+        if(value == null) return null;
+
+        Realm realm = Realm.getDefaultInstance();
+
+        AttributeOption attr = realm.where(AttributeOption.class)
+                                                            .equalTo("attributeCode", code)
+                                                            .equalTo("value", value)
+                                                            .findFirst();
+        if(attr != null)
+            return realm.copyFromRealm(attr);
 
         return null;
     }

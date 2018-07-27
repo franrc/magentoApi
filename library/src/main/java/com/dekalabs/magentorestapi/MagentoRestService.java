@@ -13,7 +13,7 @@ import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
 import com.dekalabs.magentorestapi.utils.DatabaseUtils;
 import com.dekalabs.magentorestapi.utils.FilterOptions;
-import com.dekalabs.magentorestapi.utils.PreferencesManager;
+import com.dekalabs.magentorestapi.utils.PreferencesCacheManager;
 
 import java.io.IOException;
 import java.util.List;
@@ -111,7 +111,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
         final Long categoryRoot = root == null ? MagentoRestConfiguration.getRootCategoryId() : root;
 
-        if (PreferencesManager.getInstance().mustLoadCategoriesOf(categoryRoot)) {
+        if (PreferencesCacheManager.getInstance().mustLoadCategoriesOf(categoryRoot)) {
 
             ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Category>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Category>>() {
                 @Override
@@ -124,7 +124,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
                         callback.onResults(DatabaseUtils.getInstance().getCategoriesByParent(categoryRoot));
 
-                        PreferencesManager.getInstance().setCategoryCacheTime(categoryRoot);
+                        PreferencesCacheManager.getInstance().setCategoryCacheTime(categoryRoot);
                     }
                     else {
                         Log.e("MagentoRestService", "Error retrieving customAttributes: " + results.getError().getError());

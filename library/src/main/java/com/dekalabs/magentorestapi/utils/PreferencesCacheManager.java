@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * Created by dekalabs on 02/08/2016
  */
-public class PreferencesManager {
+public class PreferencesCacheManager {
 
     private final String CACHE_PREF_CATEGORY = "preferences.cache.category.";
     private final String CACHE_PREF_ATTR = "preferences.cache.category.attr";
@@ -19,18 +19,18 @@ public class PreferencesManager {
 
     private SharedPreferences sharedPreferences;
 
-    private static PreferencesManager sInstance;
+    private static PreferencesCacheManager sInstance;
 
 
-    private PreferencesManager(Context context) {
+    private PreferencesCacheManager(Context context) {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     public static void initialize(Context context) {
-        sInstance = new PreferencesManager(context);
+        sInstance = new PreferencesCacheManager(context);
     }
 
-    public static PreferencesManager getInstance() {
+    public static PreferencesCacheManager getInstance() {
         if (sInstance == null) {
             throw new IllegalStateException("You must call PreferencesManager.initialize in the onCreate method of your custom Application");
         }

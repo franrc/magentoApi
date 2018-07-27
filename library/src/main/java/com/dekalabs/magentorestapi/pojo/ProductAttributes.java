@@ -19,15 +19,16 @@ public class ProductAttributes extends RealmObject implements Parcelable {
     private String id;
 
     @JsonProperty("attribute_code")
-    @JsonSerialize(as = CustomAttribute.class)
-    private CustomAttribute attribute;
+//    @JsonSerialize(as = CustomAttribute.class)
+//    private CustomAttribute attribute;
+    private String attributeCode;
 
     private String name;
 
     private RealmList<String> value;
 
     public void generatePrimaryKey(Long idProduct) {
-        id = String.valueOf(idProduct) + "/" + attribute.getAttributeCode();
+        id = String.valueOf(idProduct) + "/" + attributeCode;
     }
 
     public String getId() {
@@ -38,12 +39,12 @@ public class ProductAttributes extends RealmObject implements Parcelable {
         this.id = id;
     }
 
-    public CustomAttribute getAttribute() {
-        return attribute;
+    public String getAttributeCode() {
+        return attributeCode;
     }
 
-    public void setAttribute(CustomAttribute attribute) {
-        this.attribute = attribute;
+    public void setAttribute(String attribute) {
+        this.attributeCode = attribute;
     }
 
     public String getValue() {
@@ -74,7 +75,7 @@ public class ProductAttributes extends RealmObject implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.id);
-        dest.writeParcelable(this.attribute, flags);
+        dest.writeString(this.attributeCode);
         dest.writeStringList(this.value);
         dest.writeString(name);
     }
@@ -83,12 +84,12 @@ public class ProductAttributes extends RealmObject implements Parcelable {
     }
 
     public ProductAttributes(String code) {
-        this.attribute = new CustomAttribute(code);
+        this.attributeCode = code;
     }
 
     protected ProductAttributes(Parcel in) {
         this.id = in.readString();
-        this.attribute = in.readParcelable(CustomAttribute.class.getClassLoader());
+        this.attributeCode = in.readString();
         this.value = new RealmList<>();
         this.value.addAll(in.createStringArrayList());
         this.name = in.readString();
@@ -113,13 +114,11 @@ public class ProductAttributes extends RealmObject implements Parcelable {
 
         ProductAttributes that = (ProductAttributes) o;
 
-        return attribute != null ? attribute.equals(that.attribute) : that.attribute == null;
+        return attributeCode != null ? attributeCode.equals(that.attributeCode) : that.attributeCode == null;
     }
 
     @Override
     public int hashCode() {
-        return attribute != null ? attribute.hashCode() : 0;
+        return attributeCode != null ? attributeCode.hashCode() : 0;
     }
-
-
 }
