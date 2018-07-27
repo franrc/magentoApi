@@ -201,7 +201,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         executeListOnline(firstCallback, service.getProductsByCategory(queryString));
     }
 
-    public void getProductsByCategoryView(Long categoryId, ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Product>> callback) {
+    public void getProductsByCategoryView(Long categoryId, ServiceCallbackOnlyOnServiceResults<List<Product>> callback) {
 
         final Long categoryID = categoryId == null ? MagentoRestConfiguration.getRootCategoryId() : categoryId;
 
@@ -217,10 +217,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                         DatabaseUtils.getInstance().saveProducts(categoryID, category.getProductList());
                     }
 
-                    MagentoListResponse<Product> magentoList = new MagentoListResponse<>();
-                    magentoList.setItems(DatabaseUtils.getInstance().getProductsByCategory(categoryID));
-
-                    callback.onResults(magentoList);
+                    callback.onResults(DatabaseUtils.getInstance().getProductsByCategory(categoryID));
                 }
                 else {
                     Log.e("MagentoRestService", "Error retrieving products: " + results.getError().getError());
