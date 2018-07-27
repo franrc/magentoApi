@@ -237,6 +237,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
         Map<String, String> queryString = new FilterOptions()
                 .sort("position", FilterOptions.SORT_DIRECTION.ASC)
+                .showFields("navigation[products[final_price,id,sku,name,type_id,extension_attributes,custom_attributes]]")
                 .build();
 
         executeOnline(firstCallback, service.getProductsByCategoryView(categoryId, queryString));
