@@ -6,8 +6,15 @@ import java.util.List;
 
 public class CategoryView {
 
-    Navigation navigation;
+    private Navigation navigation;
 
+    public Navigation getNavigation() {
+        return navigation;
+    }
+
+    public void setNavigation(Navigation navigation) {
+        this.navigation = navigation;
+    }
 
     public List<Product> getProductList() {
         return navigation != null ? navigation.products : null;
