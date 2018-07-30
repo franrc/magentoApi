@@ -10,6 +10,9 @@ import com.dekalabs.magentorestapi.handler.FinishHandler;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.utils.PreferencesCacheManager;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -46,11 +49,25 @@ public class MagentoRestConfiguration {
             this.appUrl = appUrl;
 
             if(productMediaUrl == null) {
-                productMediaUrl = appUrl + "/media/catalog/product/";
+                try {
+                    URL url = new URL(appUrl);
+
+                    productMediaUrl = url.getProtocol() + "://" + url.getHost() + "/media/catalog/product/";
+
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
             }
 
             if(categoryMediaUrl == null) {
-                categoryMediaUrl = appUrl + "/media/catalog/category/";
+                try {
+                    URL url = new URL(appUrl);
+
+                    productMediaUrl = url.getProtocol() + "://" + url.getHost() + "/media/catalog/category/";
+
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
             }
 
             return this;
