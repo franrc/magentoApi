@@ -63,7 +63,7 @@ public class MagentoRestConfiguration {
                 try {
                     URL url = new URL(appUrl);
 
-                    productMediaUrl = url.getProtocol() + "://" + url.getHost() + "/media/catalog/category/";
+                    categoryMediaUrl = url.getProtocol() + "://" + url.getHost() + "/media/catalog/category/";
 
                 } catch (MalformedURLException e) {
                     e.printStackTrace();

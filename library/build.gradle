@@ -8,7 +8,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 27
         versionCode 1
-        versionName "1.1.9"
+        versionName "1.1.10"
     }
     buildTypes {
         release {
@@ -44,7 +44,6 @@ dependencies {
 
     api 'org.greenrobot:eventbus:3.1.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'com.android.support:design:27.1.1'
 
 
