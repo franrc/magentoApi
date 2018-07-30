@@ -15,7 +15,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,6 +61,8 @@ public class Product extends RealmObject implements Parcelable {
     private double finalPrice;
 
     private RealmList<CustomAttribute> configurableAttributes;
+
+    private int subProductsCount;
 
 //    @JsonProperty("tier_prices")
 //    private List<TierPrice> tierPrices;
@@ -197,6 +198,14 @@ public class Product extends RealmObject implements Parcelable {
         this.finalPrice = finalPrice;
     }
 
+    public int getSubProductsCount() {
+        return subProductsCount;
+    }
+
+    public void setSubProductsCount(int subProductsCount) {
+        this.subProductsCount = subProductsCount;
+    }
+
     @SuppressWarnings("unchecked")
     @JsonProperty("extension_attributes")
     private void unpackExtensionAttrs(Map<String,Object> extension) {
@@ -206,6 +215,12 @@ public class Product extends RealmObject implements Parcelable {
 
             if(object != null) {
                 this.stock = (ProductStock) object;
+            }
+
+            Object childrenCountObj = extension.get("children_count");
+
+            if(childrenCountObj != null) {
+                this.subProductsCount = (int)childrenCountObj;
             }
 
             Object configObject = extension.get("configurable_product_options");
@@ -289,6 +304,7 @@ public class Product extends RealmObject implements Parcelable {
         dest.writeDouble(this.weight);
         dest.writeParcelable(this.stock, flags);
         dest.writeDouble(finalPrice);
+        dest.writeInt(subProductsCount);
     }
 
     public Product() {
@@ -315,6 +331,7 @@ public class Product extends RealmObject implements Parcelable {
         this.weight = in.readDouble();
         this.stock = in.readParcelable(ProductStock.class.getClassLoader());
         this.finalPrice = in.readDouble();
+        this.subProductsCount = in.readInt();
     }
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {
