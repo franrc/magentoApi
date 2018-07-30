@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.dekalabs.magentorestapi.Jackson;
+import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -251,6 +252,10 @@ public class Category extends RealmObject implements Parcelable {
 
                 if(attrCode != null && attrCode.toString().equals("image")) {
                     image = (String)attrMap.get("value");
+
+                    if(image != null && !image.startsWith("http")) {
+                        image = MagentoRestConfiguration.getCategoryMediaUrlPath() + image;
+                    }
 
                     return;
                 }

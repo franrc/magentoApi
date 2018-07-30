@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.dekalabs.magentorestapi.Jackson;
+import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
 import com.dekalabs.magentorestapi.utils.DatabaseUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -99,6 +100,8 @@ public class Product extends RealmObject implements Parcelable {
     }
 
     public double getPrice() {
+        if(finalPrice > 0) return finalPrice;
+
         return price;
     }
 
@@ -332,15 +335,30 @@ public class Product extends RealmObject implements Parcelable {
     }
 
     public String getImage() {
-        return getCustomAttribute("image");
+        String image = getCustomAttribute("image");
+        if(image != null && !image.startsWith("http")) {
+            return MagentoRestConfiguration.getProductMediaUrlPath() + image;
+        }
+
+        return null;
     }
 
     public String getThumbnail() {
-        return getCustomAttribute("thumbnail");
+        String image =  getCustomAttribute("thumbnail");
+        if(image != null && !image.startsWith("http")) {
+            return MagentoRestConfiguration.getProductMediaUrlPath() + image;
+        }
+
+        return null;
     }
 
     public String getSmallImage() {
-        return getCustomAttribute("small_image");
+        String image =  getCustomAttribute("small_image");
+        if(image != null && !image.startsWith("http")) {
+            return MagentoRestConfiguration.getProductMediaUrlPath() + image;
+        }
+
+        return null;
     }
 
 

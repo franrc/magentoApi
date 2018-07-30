@@ -1,21 +1,18 @@
 package com.dekalabs.magentorestapi;
 
-import com.dekalabs.magentorestapi.dto.CategoryView;
+import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
-import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
 
-import java.util.List;
 import java.util.Map;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
-import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -52,7 +49,7 @@ public interface MagentoService {
     Call<MagentoListResponse<Product>> getProductsByCategory(@QueryMap Map<String, String> parameters);
 
     @GET("category-views/{category_id}")
-    Call<CategoryView> getProductsByCategoryView(@Path("category_id") Long categoryId, @QueryMap Map<String, String> parameters);
+    Call<CategoryViews> getProductsByCategoryView(@Path("category_id") Long categoryId, @QueryMap Map<String, String> parameters);
 
     @GET("products/{sku}")
     Call<Product> getProductDetail(@Path("sku") String sku, @Query("storeId") Long storeId);

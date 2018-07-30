@@ -16,7 +16,8 @@ import io.realm.RealmConfiguration;
 public class MagentoRestConfiguration {
 
     private static String APP_URL;
-    private static String MEDIA_URL_PATH;
+    private static String PRODUCT_MEDIA_URL_PATH;
+    private static String CATEGORY_MEDIA_URL_PATH;
     private static String ACCESS_TOKEN;
     private static String CONSUMER_KEY;
     private static String CONSUMER_SECRET;
@@ -29,7 +30,8 @@ public class MagentoRestConfiguration {
         private String accessToken;
         private String consumerKey;
         private String consumerSecret;
-        private String mediaUrl;
+        private String productMediaUrl;
+        private String categoryMediaUrl;
         private Long rootCategoryId;
 
         Context context;
@@ -42,6 +44,15 @@ public class MagentoRestConfiguration {
 
         public Builder setAppUrl(String appUrl) {
             this.appUrl = appUrl;
+
+            if(productMediaUrl == null) {
+                productMediaUrl = appUrl + "/media/catalog/product/";
+            }
+
+            if(categoryMediaUrl == null) {
+                categoryMediaUrl = appUrl + "/media/catalog/category/";
+            }
+
             return this;
         }
 
@@ -60,8 +71,13 @@ public class MagentoRestConfiguration {
             return this;
         }
 
-        public Builder setMediaUrl(String mediaUrl) {
-            this.mediaUrl = mediaUrl;
+        public Builder setProductMediaUrl(String mediaUrl) {
+            this.productMediaUrl = mediaUrl;
+            return this;
+        }
+
+        public Builder setCategoryMediaUrl(String mediaUrl) {
+            this.categoryMediaUrl = mediaUrl;
             return this;
         }
 
@@ -82,7 +98,8 @@ public class MagentoRestConfiguration {
             ACCESS_TOKEN = accessToken;
             CONSUMER_KEY = consumerKey;
             CONSUMER_SECRET = consumerSecret;
-            MEDIA_URL_PATH = mediaUrl;
+            PRODUCT_MEDIA_URL_PATH = productMediaUrl;
+            CATEGORY_MEDIA_URL_PATH = categoryMediaUrl;
             ROOT_CATEGORY_ID = rootCategoryId;
 
             Realm.init(context);
@@ -127,5 +144,13 @@ public class MagentoRestConfiguration {
 
     public static Long getRootCategoryId() {
         return ROOT_CATEGORY_ID;
+    }
+
+    public static String getProductMediaUrlPath() {
+        return PRODUCT_MEDIA_URL_PATH;
+    }
+
+    public static String getCategoryMediaUrlPath() {
+        return CATEGORY_MEDIA_URL_PATH;
     }
 }

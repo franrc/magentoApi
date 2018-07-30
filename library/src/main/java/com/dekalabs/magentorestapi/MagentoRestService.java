@@ -4,10 +4,10 @@ import android.content.Context;
 import android.util.Log;
 
 import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
-import com.dekalabs.magentorestapi.dto.CategoryView;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.pojo.Category;
+import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
@@ -201,23 +201,23 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         executeListOnline(firstCallback, service.getProductsByCategory(queryString));
     }
 
-    public void getProductsByCategoryView(Long categoryId, ServiceCallbackOnlyOnServiceResults<List<Product>> callback) {
+    public void getProductsByCategoryView(Long categoryId, ServiceCallbackOnlyOnServiceResults<CategoryViews> callback) {
 
         final Long categoryID = categoryId == null ? MagentoRestConfiguration.getRootCategoryId() : categoryId;
 
-        ServiceCallbackOnlyOnServiceResults<MagentoResponse<CategoryView>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoResponse<CategoryView>>() {
+        ServiceCallbackOnlyOnServiceResults<MagentoResponse<CategoryViews>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoResponse<CategoryViews>>() {
             @Override
-            public void onResults(MagentoResponse<CategoryView> results) {
+            public void onResults(MagentoResponse<CategoryViews> results) {
                 if(results == null) return;
 
                 if(results.getError() == null) {
-                    CategoryView category = results.getData();
+                    CategoryViews category = results.getData();
 
 //                    if(category != null) {
 //                        DatabaseUtils.getInstance().saveProducts(categoryID, category.getProductList());
 //                    }
 
-                    callback.onResults(category.getProductList());
+                    callback.onResults(category);
                 }
                 else {
                     Log.e("MagentoRestService", "Error retrieving products: " + results.getError().getError());
@@ -237,7 +237,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
         Map<String, String> queryString = new FilterOptions()
                 .sort("position", FilterOptions.SORT_DIRECTION.ASC)
-                .showFields("navigation[products[final_price,id,sku,name,type_id,extension_attributes,custom_attributes]]")
+                .showFields("category[id,name],navigation[products[final_price,id,sku,name,type_id,extension_attributes,custom_attributes]]")
                 .build();
 
         executeOnline(firstCallback, service.getProductsByCategoryView(categoryID, queryString));
