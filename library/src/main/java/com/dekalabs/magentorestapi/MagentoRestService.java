@@ -6,6 +6,7 @@ import android.util.Log;
 import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
+import com.dekalabs.magentorestapi.dto.Pagination;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
@@ -202,6 +203,10 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     }
 
     public void getProductsByCategoryView(Long categoryId, ServiceCallbackOnlyOnServiceResults<CategoryViews> callback) {
+        getProductsByCategoryView(categoryId, null, callback);
+    }
+
+    public void getProductsByCategoryView(Long categoryId, Pagination pagination, ServiceCallbackOnlyOnServiceResults<CategoryViews> callback) {
 
         final Long categoryID = categoryId == null ? MagentoRestConfiguration.getRootCategoryId() : categoryId;
 
@@ -238,6 +243,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         Map<String, String> queryString = new FilterOptions()
                 .sort("position", FilterOptions.SORT_DIRECTION.ASC)
                 .showFields("category[id,name],navigation[products[final_price,id,sku,name,type_id,extension_attributes,custom_attributes]]")
+                .addPagination(pagination)
                 .build();
 
         executeOnline(firstCallback, service.getProductsByCategoryView(categoryID, queryString));
@@ -281,5 +287,68 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
 
         executeListOnline(firstCallback, service.getAllCustomAttributes(queryString));
+    }
+
+    public void getProductDetail(String sku, ServiceCallbackOnlyOnServiceResults<Product> callback) {
+        getProductDetail(sku, null, callback);
+    }
+
+    public void getProductDetail(String sku, Long storeId, ServiceCallbackOnlyOnServiceResults<Product> callback) {
+        ServiceCallbackOnlyOnServiceResults<MagentoResponse<Product>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoResponse<Product>>() {
+            @Override
+            public void onResults(MagentoResponse<Product> results) {
+                if(results == null) return;
+
+                if(results.getError() == null) {
+                    callback.onResults(results.getData());
+                }
+                else {
+                    Log.e("MagentoRestService", "Error retrieving customAttributes: " + results.getError().getError());
+                    callback.onError(-1, results.getError().getError());
+                }
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+            }
+
+            @Override
+            public void onFinish() {
+                callback.onFinish();
+            }
+        };
+
+        executeOnline(firstCallback, service.getProductDetail(sku, storeId));
+    }
+
+
+    public void getConfigurableProductChildren(String sku, ServiceCallbackOnlyOnServiceResults<List<Product>> callback) {
+        ServiceCallbackOnlyOnServiceResults<MagentoResponse<List<Product>>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoResponse<List<Product>>>() {
+            @Override
+            public void onResults(MagentoResponse<List<Product>> results) {
+                if(results == null) return;
+
+                if(results.getError() == null) {
+                    callback.onResults(results.getData());
+                }
+                else {
+                    Log.e("MagentoRestService", "Error retrieving customAttributes: " + results.getError().getError());
+                    callback.onError(-1, results.getError().getError());
+                }
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+            }
+
+            @Override
+            public void onFinish() {
+                callback.onFinish();
+            }
+        };
+
+        executeOnline(firstCallback, service.getConfigurableChildren(sku));
     }
 }

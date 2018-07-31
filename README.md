@@ -1,5 +1,7 @@
 # MagentoApi
 
+[![](https://jitpack.io/v/franrc/magentoApi.svg)](https://jitpack.io/#franrc/magentoApi)
+
 BasicMagentoRestApi is a library to access the most basic services of Magento 2 API. 
 
 ### How to use

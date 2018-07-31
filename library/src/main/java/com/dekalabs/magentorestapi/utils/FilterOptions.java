@@ -1,5 +1,7 @@
 package com.dekalabs.magentorestapi.utils;
 
+import com.dekalabs.magentorestapi.dto.Pagination;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +68,15 @@ public class FilterOptions {
 
     public FilterOptions showFields(String fields) {
         filterMap.put("fields", fields);
+        return this;
+    }
+
+    public FilterOptions addPagination(Pagination pagination) {
+        if(pagination != null) {
+            filterMap.put("searchCriteria[pageSize]", String.valueOf(pagination.getPageSize()));
+            filterMap.put("searchCriteria[currentPage]", String.valueOf(pagination.getCurrentPage()));
+        }
+
         return this;
     }
 

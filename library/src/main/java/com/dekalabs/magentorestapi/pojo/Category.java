@@ -259,7 +259,6 @@ public class Category extends RealmObject implements Parcelable {
 
                     return;
                 }
-
             }
         }
     }

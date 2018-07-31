@@ -1,5 +1,6 @@
 package com.dekalabs.magentorestapi;
 
+import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.pojo.Category;
@@ -7,6 +8,7 @@ import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
 
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.ResponseBody;
@@ -56,5 +58,8 @@ public interface MagentoService {
 
     @GET("products/attributes")
     Call<MagentoListResponse<CustomAttribute>> getAllCustomAttributes(@QueryMap Map<String, String> parameters);
+
+    @GET("configurable-products/{sku}/children")
+    Call<List<Product>> getConfigurableChildren(@Path("sku") String sku);
 
 }

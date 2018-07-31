@@ -214,7 +214,11 @@ public class Product extends RealmObject implements Parcelable {
             Object object = extension.get("stock_item");
 
             if(object != null) {
-                this.stock = (ProductStock) object;
+                try {
+                    this.stock = Jackson.DEFAULT_MAPPER.readValue(new JSONObject((LinkedHashMap<String, Object>)object).toString(), ProductStock.class);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             Object childrenCountObj = extension.get("children_count");
@@ -320,10 +324,19 @@ public class Product extends RealmObject implements Parcelable {
         this.status = in.readInt();
         this.visibility = in.readInt();
         this.typeId = in.readString();
-        this.customAttributes = new RealmList<>();
-        this.customAttributes.addAll(in.createTypedArrayList(ProductAttributes.CREATOR));
-        this.configurableAttributes = new RealmList<>();
-        this.configurableAttributes.addAll(in.createTypedArrayList(CustomAttribute.CREATOR));
+
+        List<ProductAttributes> productAttributes = in.createTypedArrayList(ProductAttributes.CREATOR);
+        if(productAttributes != null) {
+            this.customAttributes = new RealmList<>();
+            this.customAttributes.addAll(productAttributes);
+        }
+
+        List<CustomAttribute> customAttributes = in.createTypedArrayList(CustomAttribute.CREATOR);
+        if(customAttributes != null) {
+            this.configurableAttributes = new RealmList<>();
+            this.configurableAttributes.addAll(customAttributes);
+        }
+
         long tmpCreatedAt = in.readLong();
         this.createdAt = tmpCreatedAt == -1 ? null : new Date(tmpCreatedAt);
         long tmpUpdatedAt = in.readLong();
