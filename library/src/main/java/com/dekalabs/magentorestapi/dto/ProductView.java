@@ -43,39 +43,6 @@ public class ProductView {
     public void setAttributes(List<CustomAttributeViewDTO.CustomAttributeView> attributes) {
         this.attributes = attributes;
 
-        this.attributes.get(0).getOptions().get(1).getProducts().add( 1, children.get(6).getId().toString());
-        this.attributes.get(0).getOptions().get(2).getProducts().add(1,children.get(7).getId().toString());
-        this.attributes.get(0).getOptions().get(3).getProducts().add(1, children.get(8).getId().toString());
-
-        CustomAttributeViewDTO.CustomAttributeView attrNew = new CustomAttributeViewDTO.CustomAttributeView();
-        attrNew.setCode("wjh_size");
-        attrNew.setId(123123L);
-        attrNew.setLabel("Size");
-
-        AttributeOption op1 =  new AttributeOption();
-        op1.setValue("15ml");
-        op1.setId(12312313L);
-        op1.setLabel("15ml");
-        op1.setProducts(Arrays.asList(children.get(6).getId().toString()));
-
-        AttributeOption op2 =  new AttributeOption();
-        op2.setValue("30ml");
-        op2.setId(12312314L);
-        op2.setLabel("30ml");
-        op2.setProducts(Arrays.asList(children.get(7).getId().toString()));
-
-        AttributeOption op3 =  new AttributeOption();
-        op3.setValue("45ml");
-        op3.setId(12312315L);
-        op3.setLabel("45ml");
-        op3.setProducts(Arrays.asList(children.get(8).getId().toString()));
-
-        attrNew.setOptions(Arrays.asList(op1, op2, op3));
-
-        this.attributes.add(attrNew);
-
-
-
         StreamSupport.stream(attributes).parallel().forEach(attr -> StreamSupport.stream(attr.getOptions()).parallel().forEach(opt -> opt.setAttributeCode(attr.getCode())));
 
         fillMap();
