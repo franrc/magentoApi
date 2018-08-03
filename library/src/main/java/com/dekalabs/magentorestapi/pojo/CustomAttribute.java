@@ -20,6 +20,8 @@ public class CustomAttribute extends RealmObject implements Parcelable {
     @JsonProperty("attribute_id")
     private Long attributeId;
 
+    private String label;
+
     private RealmList<AttributeOption> options;
 
     public CustomAttribute(String attributeCode) {
@@ -51,6 +53,14 @@ public class CustomAttribute extends RealmObject implements Parcelable {
         this.options = options;
     }
 
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -61,6 +71,7 @@ public class CustomAttribute extends RealmObject implements Parcelable {
         dest.writeString(this.attributeCode);
         dest.writeValue(this.attributeId);
         dest.writeTypedList(this.options);
+        dest.writeString(this.label);
     }
 
     public CustomAttribute() {
@@ -71,6 +82,7 @@ public class CustomAttribute extends RealmObject implements Parcelable {
         this.attributeId = (Long) in.readValue(Long.class.getClassLoader());
         this.options = new RealmList<>();
         this.options.addAll(in.createTypedArrayList(AttributeOption.CREATOR));
+        this.label = in.readString();
     }
 
     public static final Creator<CustomAttribute> CREATOR = new Creator<CustomAttribute>() {

@@ -3,7 +3,12 @@ package com.dekalabs.magentorestapi.pojo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 public class AttributeOption extends RealmObject implements Parcelable {
@@ -13,6 +18,9 @@ public class AttributeOption extends RealmObject implements Parcelable {
 
     private String label;
     private String value;
+
+    @Ignore
+    private List<String> products;
 
     private String attributeCode;
 
@@ -48,6 +56,14 @@ public class AttributeOption extends RealmObject implements Parcelable {
         this.attributeCode = attributeCode;
     }
 
+    public List<String> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<String> products) {
+        this.products = products;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -59,9 +75,14 @@ public class AttributeOption extends RealmObject implements Parcelable {
         dest.writeString(this.label);
         dest.writeString(this.value);
         dest.writeString(this.attributeCode);
+        dest.writeStringList(this.products);
     }
 
     public AttributeOption() {
+    }
+
+    public AttributeOption(String text) {
+
     }
 
     protected AttributeOption(Parcel in) {
@@ -69,6 +90,13 @@ public class AttributeOption extends RealmObject implements Parcelable {
         this.label = in.readString();
         this.value = in.readString();
         this.attributeCode = in.readString();
+
+        List<String> products = in.createStringArrayList();
+
+        if(products != null) {
+            this.products = new ArrayList<>();
+            this.products.addAll(products);
+        }
     }
 
     public static final Parcelable.Creator<AttributeOption> CREATOR = new Parcelable.Creator<AttributeOption>() {

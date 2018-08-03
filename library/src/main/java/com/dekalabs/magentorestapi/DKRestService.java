@@ -174,7 +174,6 @@ public abstract class DKRestService<IFSERVICE> {
                 call.enqueue(new Callback<ServerType>() {
                     @Override
                     public void onResponse(Call<ServerType> call, Response<ServerType> response) {
-                        currentContext = null;
                         int responseCode = response.code();
 
                         if(responseCode >= 200 && responseCode <= 208) {
@@ -211,7 +210,6 @@ public abstract class DKRestService<IFSERVICE> {
                     @Override
                     public void onFailure(Call<ServerType> call, Throwable t) {
                         callback.onError(currentContext, t.getMessage());
-                        currentContext = null;
                         callback.onFinish();
                     }
                 });
@@ -220,14 +218,11 @@ public abstract class DKRestService<IFSERVICE> {
                     Response<ServerType> response = call.execute();
                     ServerType results = response.body();
 
-                    currentContext = null;
-
                     MagentoResponse<ServerType> magentoResponse = new MagentoResponse<>();
                     magentoResponse.setData(results);
 
                     callback.onResults(magentoResponse);
                 } catch (IOException e) {
-                    currentContext = null;
                     e.printStackTrace();
                 }
 
@@ -235,7 +230,6 @@ public abstract class DKRestService<IFSERVICE> {
             }
         } else {
             callback.onNotInternetError();
-            currentContext = null;
             callback.onFinish();
         }
     }
@@ -246,7 +240,6 @@ public abstract class DKRestService<IFSERVICE> {
                 call.enqueue(new Callback<MagentoListResponse<ServerType>>() {
                     @Override
                     public void onResponse(Call<MagentoListResponse<ServerType>> call, Response<MagentoListResponse<ServerType>> response) {
-                        currentContext = null;
                         int responseCode = response.code();
 
                         if(responseCode >= 200 && responseCode <= 208) {
@@ -280,15 +273,12 @@ public abstract class DKRestService<IFSERVICE> {
                     @Override
                     public void onFailure(Call<MagentoListResponse<ServerType>> call, Throwable t) {
                         callback.onError(currentContext, t.getMessage());
-                        currentContext = null;
                         callback.onFinish();
                     }
                 });
             } else {
                 try {
                     Response<MagentoListResponse<ServerType>> response = call.execute();
-
-                    currentContext = null;
 
                     int responseCode = response.code();
 
@@ -319,7 +309,6 @@ public abstract class DKRestService<IFSERVICE> {
                         }
                     }
                 } catch (IOException e) {
-                    currentContext = null;
                     e.printStackTrace();
                 }
 
@@ -327,7 +316,6 @@ public abstract class DKRestService<IFSERVICE> {
             }
         } else {
             callback.onNotInternetError();
-            currentContext = null;
             callback.onFinish();
         }
     }

@@ -8,6 +8,7 @@ import com.dekalabs.magentorestapi.pojo.Product;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 
 /**
@@ -34,21 +35,15 @@ public class DatabaseUtils {
 
         RealmResults<CustomAttribute> attributes = realm.where(CustomAttribute.class).findAll();
 
-        if(attributes != null)
-            return realm.copyFromRealm(attributes);
-
-        return null;
+        return copyFromRealm(realm, attributes, true);
     }
 
     public List<Category> getCategoriesByParent(Long parentId) {
         Realm realm = Realm.getDefaultInstance();
 
-        RealmResults<Category> attributes = realm.where(Category.class).equalTo("parentId", parentId).findAll();
+        RealmResults<Category> categories = realm.where(Category.class).equalTo("parentId", parentId).findAll();
 
-        if(attributes != null)
-            return realm.copyFromRealm(attributes);
-
-        return null;
+        return copyFromRealm(realm, categories, true);
     }
 
     public void saveCategories(Long parentCategory, List<Category> categories) {
@@ -131,10 +126,19 @@ public class DatabaseUtils {
 
         RealmResults<Product> products = realm.where(Product.class).equalTo("categoryId", categoryId).findAll();
 
-        if(products != null)
-            return realm.copyFromRealm(products);
+        return copyFromRealm(realm, products, true);
+    }
 
-        return null;
+    private <DATA extends RealmObject> List<DATA> copyFromRealm(Realm realm, RealmResults<DATA> results, boolean closeRealm) {
+        List<DATA> data = null;
+
+        if(results != null)
+            data = realm.copyFromRealm(results);
+
+        if(closeRealm)
+            realm.close();
+
+        return data;
     }
 
     public AttributeOption findAttributeByValue(String code, String value) {
@@ -146,10 +150,19 @@ public class DatabaseUtils {
                                                             .equalTo("attributeCode", code)
                                                             .equalTo("value", value)
                                                             .findFirst();
-        if(attr != null)
-            return realm.copyFromRealm(attr);
+        return copyFromRealm(realm, attr, true);
+    }
 
-        return null;
+    private <DATA extends RealmObject> DATA copyFromRealm(Realm realm, DATA result, boolean closeRealm) {
+        DATA copiedData = null;
+
+        if(result != null)
+            copiedData = realm.copyFromRealm(result);
+
+        if(closeRealm)
+            realm.close();
+
+        return copiedData;
     }
 
     public void clearDatabase() {

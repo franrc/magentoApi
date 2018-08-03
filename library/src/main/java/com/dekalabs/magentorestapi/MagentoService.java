@@ -1,9 +1,10 @@
 package com.dekalabs.magentorestapi;
 
-import com.dekalabs.magentorestapi.dto.MagentoResponse;
-import com.dekalabs.magentorestapi.pojo.CategoryViews;
+import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
+import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.pojo.Category;
+import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
@@ -61,5 +62,8 @@ public interface MagentoService {
 
     @GET("configurable-products/{sku}/children")
     Call<List<Product>> getConfigurableChildren(@Path("sku") String sku);
+
+    @GET("product-views/{sku}")
+    Call<CustomAttributeViewDTO> getProductView(@Path("sku") String sku, @QueryMap Map<String, String> parameters);
 
 }

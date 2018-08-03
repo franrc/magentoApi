@@ -4,9 +4,11 @@ import android.content.Context;
 import android.util.Log;
 
 import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
+import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.dto.Pagination;
+import com.dekalabs.magentorestapi.dto.ProductView;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
@@ -289,66 +291,144 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         executeListOnline(firstCallback, service.getAllCustomAttributes(queryString));
     }
 
-    public void getProductDetail(String sku, ServiceCallbackOnlyOnServiceResults<Product> callback) {
+//    public void getConfigurableProductChildren(String sku, ServiceCallback<List<Product>> callback) {
+//        ServiceCallback<MagentoListResponse<Product>> firstCallback = new ServiceCallback<MagentoListResponse<Product>>() {
+//            @Override
+//            public void onResults(MagentoListResponse<Product> results) {
+//                if(results == null) return;
+//
+//                if(results.getError() == null) {
+//                    callback.onResults(results.getItems());
+//                }
+//                else {
+//                    Log.e("MagentoRestService", "Error retrieving customAttributes: " + results.getError().getError());
+//                    callback.onError(-1, results.getError().getError());
+//                }
+//            }
+//
+//            @Override
+//            public void onError(int errorCode, String message) {
+//                callback.onError(errorCode, message);
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                callback.onFinish();
+//            }
+//        };
+//
+//        executeListOnline(firstCallback, service.getConfigurableChildren(sku));
+//    }
+
+    public void getProductDetail(String sku, ServiceCallback<ProductView> callback) {
         getProductDetail(sku, null, callback);
     }
 
-    public void getProductDetail(String sku, Long storeId, ServiceCallbackOnlyOnServiceResults<Product> callback) {
-        ServiceCallbackOnlyOnServiceResults<MagentoResponse<Product>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoResponse<Product>>() {
+    public void getProductDetail(String sku, Long storeId, ServiceCallback<ProductView> callback) {
+        ServiceCallback<MagentoResponse<Product>> bySkuCallback = new ServiceCallback<MagentoResponse<Product>>() {
             @Override
             public void onResults(MagentoResponse<Product> results) {
                 if(results == null) return;
 
                 if(results.getError() == null) {
-                    callback.onResults(results.getData());
+
+                    //Check if this product is simple or configurable. If it's simple, we can return it as normal
+                    Product product = results.getData();
+
+                    if(Product.TYPE_SIMPLE.equals(product.getTypeId())) {
+                        callback.onResults(new ProductView(product));
+                        callback.onFinish();
+                    }
+                    else {
+                        //As type is configurable, we must retrieve the configurable attributes and this product children
+                        getProductChildren(product, callback);
+                    }
                 }
                 else {
-                    Log.e("MagentoRestService", "Error retrieving customAttributes: " + results.getError().getError());
+                    Log.e("MagentoRestService", "Error retrieving product by sku: " + results.getError().getError());
                     callback.onError(-1, results.getError().getError());
+                    callback.onFinish();
                 }
             }
 
             @Override
             public void onError(int errorCode, String message) {
                 callback.onError(errorCode, message);
-            }
-
-            @Override
-            public void onFinish() {
                 callback.onFinish();
             }
         };
 
-        executeOnline(firstCallback, service.getProductDetail(sku, storeId));
+        executeOnline(bySkuCallback, service.getProductDetail(sku, storeId));
     }
 
 
-    public void getConfigurableProductChildren(String sku, ServiceCallbackOnlyOnServiceResults<List<Product>> callback) {
-        ServiceCallbackOnlyOnServiceResults<MagentoResponse<List<Product>>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoResponse<List<Product>>>() {
+    private void getProductChildren(Product product, ServiceCallback<ProductView> callback) {
+
+        //At this point, we will retrieve product children and, after that, we will ask the server for the configurable attributes by product-view service
+
+        ServiceCallback<MagentoResponse<List<Product>>> childrenCallback = new ServiceCallback<MagentoResponse<List<Product>>>() {
             @Override
             public void onResults(MagentoResponse<List<Product>> results) {
                 if(results == null) return;
 
                 if(results.getError() == null) {
-                    callback.onResults(results.getData());
+
+                    //Now we have the product children, with the configurable list
+                    ProductView productView = new ProductView(product);
+                    productView.setChildren(results.getData());
+
+                    //Let's go for the attributes!
+                    getConfigurableProductAttributes(productView, callback);
                 }
                 else {
-                    Log.e("MagentoRestService", "Error retrieving customAttributes: " + results.getError().getError());
+                    Log.e("MagentoRestService", "Error retrieving children products: " + results.getError().getError());
                     callback.onError(-1, results.getError().getError());
+                    callback.onFinish();
                 }
             }
 
             @Override
             public void onError(int errorCode, String message) {
                 callback.onError(errorCode, message);
-            }
-
-            @Override
-            public void onFinish() {
                 callback.onFinish();
             }
         };
 
-        executeOnline(firstCallback, service.getConfigurableChildren(sku));
+        executeOnline(childrenCallback, service.getConfigurableChildren(product.getSku()));
+    }
+
+    private void getConfigurableProductAttributes(ProductView productView, ServiceCallback<ProductView> callback) {
+        ServiceCallback<MagentoResponse<CustomAttributeViewDTO>> childrenCallback = new ServiceCallback<MagentoResponse<CustomAttributeViewDTO>>() {
+            @Override
+            public void onResults(MagentoResponse<CustomAttributeViewDTO> results) {
+                if(results == null) return;
+
+                if(results.getError() == null) {
+
+                    //Now we have the product children, with the configurable list
+                    productView.setAttributes(results.getData().getAttributeViews());
+
+                    callback.onResults(productView);
+                    callback.onFinish();
+                }
+                else {
+                    Log.e("MagentoRestService", "Error retrieving children products: " + results.getError().getError());
+                    callback.onError(-1, results.getError().getError());
+                    callback.onFinish();
+                }
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+                callback.onFinish();
+            }
+        };
+
+        Map<String, String> queryString = new FilterOptions()
+                .showFields("configurable_product_options")
+                .build();
+
+        executeOnline(childrenCallback, service.getProductView(productView.getMainProduct().getSku(), queryString));
     }
 }

@@ -25,6 +25,9 @@ import io.realm.RealmObject;
 
 public class Product extends RealmObject implements Parcelable {
 
+    public static final String TYPE_CONFIGURABLE = "configurable";
+    public static final String TYPE_SIMPLE = "simple";
+
     private Long id;
     private String sku;
     private String name;
@@ -314,6 +317,10 @@ public class Product extends RealmObject implements Parcelable {
     public Product() {
     }
 
+    public Product(Long id) {
+        this.id = id;
+    }
+
     protected Product(Parcel in) {
         this.id = (Long) in.readValue(Long.class.getClassLoader());
         this.sku = in.readString();
@@ -409,5 +416,20 @@ public class Product extends RealmObject implements Parcelable {
         if(customAttributes == null) return null;
 
         return customAttributes.first(new ProductAttributes(code)).getValues();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Product product = (Product) o;
+
+        return id != null ? id.equals(product.id) : product.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }
