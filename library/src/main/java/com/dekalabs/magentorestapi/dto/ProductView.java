@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java8.util.function.IntFunction;
 import java8.util.stream.Collectors;
 import java8.util.stream.StreamSupport;
 
@@ -107,6 +108,20 @@ public class ProductView {
         }
 
         return null;
+    }
+
+    public Product getFirstChildrenProductToShow() {
+        if(children == null || children.size() == 0) return null;
+
+        if(attributes == null || attributes.size() == 0) return children.get(0);
+
+        AttributeOption[] attrs = new AttributeOption[attributes.size()];
+
+        for(int i = 0; i < attributes.size(); i++) {
+            attrs[i] = attributes.get(i).getOptions().get(0);
+        }
+
+        return findProductBy(attrs);
     }
 
     private Product getChildrenProductById(Long id) {
