@@ -116,13 +116,16 @@ public class AttributeOption extends RealmObject implements Parcelable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AttributeOption that = (AttributeOption) o;
+        AttributeOption option = (AttributeOption) o;
 
-        return value != null ? value.equals(that.value) : that.value == null;
+        if (id != null ? !id.equals(option.id) : option.id != null) return false;
+        return attributeCode != null ? attributeCode.equals(option.attributeCode) : option.attributeCode == null;
     }
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (attributeCode != null ? attributeCode.hashCode() : 0);
+        return result;
     }
 }
