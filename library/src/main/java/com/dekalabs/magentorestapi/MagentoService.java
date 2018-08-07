@@ -66,4 +66,7 @@ public interface MagentoService {
     @GET("product-views/{sku}")
     Call<CustomAttributeViewDTO> getProductView(@Path("sku") String sku, @QueryMap Map<String, String> parameters);
 
+    @GET("products")
+    Call<MagentoListResponse<Product>> getProductBasicDataBySkuList(@QueryMap Map<String, String> params);
+
 }

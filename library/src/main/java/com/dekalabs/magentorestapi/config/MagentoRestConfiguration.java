@@ -8,6 +8,7 @@ import com.dekalabs.magentorestapi.ServiceCallbackOnlyOnServiceResults;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.handler.FinishHandler;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
+import com.dekalabs.magentorestapi.utils.DatabaseUtils;
 import com.dekalabs.magentorestapi.utils.PreferencesCacheManager;
 
 import java.net.MalformedURLException;
@@ -120,11 +121,6 @@ public class MagentoRestConfiguration {
             ROOT_CATEGORY_ID = rootCategoryId;
 
             Realm.init(context);
-            RealmConfiguration realmConfiguration = new RealmConfiguration.Builder()
-                    .schemaVersion(0)
-                    .deleteRealmIfMigrationNeeded()
-                    .build();
-            Realm.setDefaultConfiguration(realmConfiguration);
 
             if (PreferencesCacheManager.getInstance().mustLoadAttrs()) {
                 new MagentoRestService(context).getUserDefinedCustomAttributes(new ServiceCallbackOnlyOnServiceResults<MagentoListResponse<CustomAttribute>>() {

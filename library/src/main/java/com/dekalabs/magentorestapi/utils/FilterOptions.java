@@ -9,6 +9,7 @@ public class FilterOptions {
 
     public static String EQUALS = "eq";
     public static String LIKE = "like";
+    public static String IN = "in";
 
     public enum SORT_DIRECTION { ASC, DESC }
 

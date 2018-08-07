@@ -122,10 +122,11 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                     if(results == null) return;
 
                     if(results.getError() == null) {
+                        DatabaseUtils database = new DatabaseUtils();
 
-                        DatabaseUtils.getInstance().saveCategories(categoryRoot, results.getItems());
+                        database.saveCategories(categoryRoot, results.getItems());
 
-                        callback.onResults(DatabaseUtils.getInstance().getCategoriesByParent(categoryRoot));
+                        callback.onResults(database.getCategoriesByParent(categoryRoot));
 
                         PreferencesCacheManager.getInstance().setCategoryCacheTime(categoryRoot);
                     }
@@ -153,7 +154,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
         }
         else {
-            callback.onResults(DatabaseUtils.getInstance().getCategoriesByParent(categoryRoot));
+            callback.onResults(new DatabaseUtils().getCategoriesByParent(categoryRoot));
             callback.onFinish();
         }
     }
@@ -172,10 +173,11 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                 if(results == null) return;
 
                 if(results.getError() == null) {
-                    DatabaseUtils.getInstance().saveProducts(categoryID, results.getItems());
+                    DatabaseUtils database = new DatabaseUtils();
+                    database.saveProducts(categoryID, results.getItems());
 
                     MagentoListResponse<Product> magentoList = new MagentoListResponse<>();
-                    magentoList.setItems(DatabaseUtils.getInstance().getProductsByCategory(categoryID));
+                    magentoList.setItems(database.getProductsByCategory(categoryID));
 
                     callback.onResults(magentoList);
                 }
@@ -259,10 +261,11 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                 if(results == null) return;
 
                 if(results.getError() == null) {
-                    DatabaseUtils.getInstance().saveCustomAttributes(results.getItems());
+                    DatabaseUtils database = new DatabaseUtils();
+                    database.saveCustomAttributes(results.getItems());
 
                     MagentoListResponse<CustomAttribute> magentoList = new MagentoListResponse<>();
-                    magentoList.setItems(DatabaseUtils.getInstance().getCustomAttributes());
+                    magentoList.setItems(database.getCustomAttributes());
 
                     callback.onResults(magentoList);
                 }
@@ -430,5 +433,39 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                 .build();
 
         executeOnline(childrenCallback, service.getProductView(productView.getMainProduct().getSku(), queryString));
+    }
+
+    public void getBasicProductDataBySkuList(List<String> skuList, ServiceCallback<List<Product>> callback) {
+
+        ServiceCallback<MagentoListResponse<Product>> firstCallback = new ServiceCallback<MagentoListResponse<Product>>() {
+            @Override
+            public void onResults(MagentoListResponse<Product> results) {
+                if(results == null) return;
+
+                if(results.getError() == null) {
+                    callback.onResults(results.getItems());
+                    callback.onFinish();
+                }
+                else {
+                    Log.e("MagentoRestService", "Error retrieving products by sku: " + results.getError().getError());
+                    callback.onError(-1, results.getError().getError());
+                    callback.onFinish();
+                }
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+                callback.onFinish();
+            }
+        };
+
+
+        Map<String, String> queryString = new FilterOptions()
+                .addFilter("sku", android.text.TextUtils.join(",", skuList), FilterOptions.IN)
+                .showFields("items[id,sku,price]")
+                .build();
+
+        executeListOnline(firstCallback, service.getProductBasicDataBySkuList(queryString));
     }
 }

@@ -8,6 +8,7 @@ import com.dekalabs.magentorestapi.pojo.Product;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 
@@ -17,21 +18,25 @@ import io.realm.RealmResults;
 
 public class DatabaseUtils {
 
-    private static DatabaseUtils instance = null;
+    private static RealmConfiguration configuration;
 
-    protected DatabaseUtils() {
-        // Exists only to defeat instantiation.
-    }
-    public static DatabaseUtils getInstance() {
-        if(instance == null) {
-            instance = new DatabaseUtils();
+    public static RealmConfiguration getMagentoRealmConfig() {
+        if(configuration == null) {
+            configuration = new RealmConfiguration.Builder()
+                    .schemaVersion(0)
+                    .deleteRealmIfMigrationNeeded()
+                    .build();
         }
 
-        return instance;
+        return configuration;
+    }
+
+    private Realm getRealmInstance() {
+        return Realm.getInstance(getMagentoRealmConfig());
     }
 
     public List<CustomAttribute> getCustomAttributes() {
-        Realm realm = Realm.getDefaultInstance();
+        Realm realm = getRealmInstance();
 
         RealmResults<CustomAttribute> attributes = realm.where(CustomAttribute.class).findAll();
 
@@ -39,7 +44,7 @@ public class DatabaseUtils {
     }
 
     public List<Category> getCategoriesByParent(Long parentId) {
-        Realm realm = Realm.getDefaultInstance();
+        Realm realm = getRealmInstance();
 
         RealmResults<Category> categories = realm.where(Category.class).equalTo("parentId", parentId).findAll();
 
@@ -47,7 +52,7 @@ public class DatabaseUtils {
     }
 
     public void saveCategories(Long parentCategory, List<Category> categories) {
-        Realm realm = Realm.getDefaultInstance();
+        Realm realm = getRealmInstance();
         realm.beginTransaction();
 
         RealmResults<Category> oldCategories = realm.where(Category.class).equalTo("parentId", parentCategory).findAll();
@@ -62,7 +67,7 @@ public class DatabaseUtils {
 
 
     public void saveCustomAttributes(List<CustomAttribute> customAttributes) {
-        Realm realm = Realm.getDefaultInstance();
+        Realm realm = getRealmInstance();
         realm.beginTransaction();
 
         realm.delete(CustomAttribute.class);
@@ -86,7 +91,7 @@ public class DatabaseUtils {
     }
 
     public void saveProducts(Long categoryId, List<Product> products) {
-        Realm realm = Realm.getDefaultInstance();
+        Realm realm = getRealmInstance();
         realm.beginTransaction();
 
         RealmResults<Product> oldProductsByCat = realm.where(Product.class).equalTo("categoryId", categoryId).findAll();
@@ -122,7 +127,7 @@ public class DatabaseUtils {
     public List<Product> getProductsByCategory(Long categoryId) {
         if(categoryId == null) return null;
 
-        Realm realm = Realm.getDefaultInstance();
+        Realm realm = getRealmInstance();
 
         RealmResults<Product> products = realm.where(Product.class).equalTo("categoryId", categoryId).findAll();
 
@@ -144,7 +149,7 @@ public class DatabaseUtils {
     public AttributeOption findAttributeByValue(String code, String value) {
         if(value == null) return null;
 
-        Realm realm = Realm.getDefaultInstance();
+        Realm realm = getRealmInstance();
 
         AttributeOption attr = realm.where(AttributeOption.class)
                                                             .equalTo("attributeCode", code)
@@ -166,7 +171,7 @@ public class DatabaseUtils {
     }
 
     public void clearDatabase() {
-        Realm realm = Realm.getDefaultInstance();
+        Realm realm = getRealmInstance();
 
         try {
             realm.close();

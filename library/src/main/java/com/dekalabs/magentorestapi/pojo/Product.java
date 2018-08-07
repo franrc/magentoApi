@@ -265,6 +265,8 @@ public class Product extends RealmObject implements Parcelable {
 
             Object value  = attr.get("value");
 
+            DatabaseUtils database = new DatabaseUtils();
+
             if(value instanceof String) {
                 ProductAttributes productAttributes = new ProductAttributes();
                 productAttributes.setAttribute(code);
@@ -272,7 +274,7 @@ public class Product extends RealmObject implements Parcelable {
                 productAttributes.setName(attr.get("name").toString());
                 productAttributes.setValue(new RealmList<>());
 
-                AttributeOption option = DatabaseUtils.getInstance().findAttributeByValue(code, value.toString());
+                AttributeOption option = database.findAttributeByValue(code, value.toString());
 
                 if(option != null) {
                     Log.i("MagentoRestApi", "CustomAttribute found : " + option.getLabel());
