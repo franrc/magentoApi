@@ -9,6 +9,7 @@ import java.util.List;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
 
 public class AttributeOption extends RealmObject implements Parcelable {
@@ -22,6 +23,7 @@ public class AttributeOption extends RealmObject implements Parcelable {
     @Ignore
     private List<String> products;
 
+    @Index
     private String attributeCode;
 
     public Long getId() {

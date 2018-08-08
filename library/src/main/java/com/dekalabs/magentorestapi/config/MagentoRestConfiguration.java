@@ -112,13 +112,26 @@ public class MagentoRestConfiguration {
         public void build(FinishHandler finishHandler) {
             if(finishHandler == null) throw new IllegalArgumentException("FinishHandler could not be null");
 
-            APP_URL = appUrl;
-            ACCESS_TOKEN = accessToken;
-            CONSUMER_KEY = consumerKey;
-            CONSUMER_SECRET = consumerSecret;
-            PRODUCT_MEDIA_URL_PATH = productMediaUrl;
-            CATEGORY_MEDIA_URL_PATH = categoryMediaUrl;
-            ROOT_CATEGORY_ID = rootCategoryId;
+            if(appUrl != null)
+                APP_URL = appUrl;
+
+            if(accessToken != null)
+                ACCESS_TOKEN = accessToken;
+
+            if(consumerKey != null)
+                CONSUMER_KEY = consumerKey;
+
+            if(consumerSecret != null)
+                CONSUMER_SECRET = consumerSecret;
+
+            if(productMediaUrl != null)
+                PRODUCT_MEDIA_URL_PATH = productMediaUrl;
+
+            if(categoryMediaUrl != null)
+                CATEGORY_MEDIA_URL_PATH = categoryMediaUrl;
+
+            if(rootCategoryId != null)
+                ROOT_CATEGORY_ID = rootCategoryId;
 
             Realm.init(context);
 
