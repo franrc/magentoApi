@@ -43,6 +43,10 @@ public class CategoryViews implements Parcelable {
         return navigation != null ? navigation.products : null;
     }
 
+    public int getTotalProducts() {
+        return navigation != null ? navigation.totalProducts : 0;
+    }
+
 
     @SuppressWarnings("unchecked")
     @JsonProperty("category")
@@ -66,12 +70,23 @@ public class CategoryViews implements Parcelable {
     public static class Navigation implements Parcelable {
         private List<Product> products;
 
+        @JsonProperty("total_count")
+        private int totalProducts;
+
         public List<Product> getProducts() {
             return products;
         }
 
         public void setProducts(List<Product> products) {
             this.products = products;
+        }
+
+        public int getTotalProducts() {
+            return totalProducts;
+        }
+
+        public void setTotalProducts(int totalProducts) {
+            this.totalProducts = totalProducts;
         }
 
         @Override
@@ -82,6 +97,7 @@ public class CategoryViews implements Parcelable {
         @Override
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeTypedList(this.products);
+            dest.writeInt(this.totalProducts);
         }
 
         public Navigation() {
@@ -89,6 +105,7 @@ public class CategoryViews implements Parcelable {
 
         protected Navigation(Parcel in) {
             this.products = in.createTypedArrayList(Product.CREATOR);
+            this.totalProducts = in.readInt();
         }
 
         public static final Parcelable.Creator<Navigation> CREATOR = new Parcelable.Creator<Navigation>() {

@@ -1,9 +1,13 @@
 package com.dekalabs.magentorestapi.utils;
 
+import com.dekalabs.magentorestapi.pojo.Address;
 import com.dekalabs.magentorestapi.pojo.AttributeOption;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
+import com.dekalabs.magentorestapi.pojo.Customer;
+import com.dekalabs.magentorestapi.pojo.MediaGallery;
 import com.dekalabs.magentorestapi.pojo.Product;
+import com.dekalabs.magentorestapi.pojo.ProductAttributes;
 
 import java.util.List;
 
@@ -11,6 +15,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
+import io.realm.annotations.RealmModule;
 
 /**
  * Created by fran on 25/07/2018.
@@ -24,6 +29,8 @@ public class DatabaseUtils {
         if(configuration == null) {
             configuration = new RealmConfiguration.Builder()
                     .schemaVersion(0)
+                    .addModule(new DatabaseUtils.MagentoModule())
+                    .name("magento.realm")
                     .deleteRealmIfMigrationNeeded()
                     .build();
         }
@@ -181,6 +188,10 @@ public class DatabaseUtils {
             ex.printStackTrace();
             //No Realm file to remove.
         }
+    }
+
+    @RealmModule(classes = {Address.class, AttributeOption.class, Category.class, CustomAttribute.class, Customer.class, MediaGallery.class, ProductAttributes.class, })
+    public static class MagentoModule {
     }
 
 }
