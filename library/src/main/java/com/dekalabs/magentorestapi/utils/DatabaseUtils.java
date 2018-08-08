@@ -190,7 +190,7 @@ public class DatabaseUtils {
         }
     }
 
-    @RealmModule(classes = {Address.class, AttributeOption.class, Category.class, CustomAttribute.class, Customer.class, MediaGallery.class, ProductAttributes.class, })
+    @RealmModule(library = true, allClasses = true)
     public static class MagentoModule {
     }
 
