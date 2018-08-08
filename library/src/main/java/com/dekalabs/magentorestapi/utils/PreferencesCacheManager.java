@@ -1,5 +1,6 @@
 package com.dekalabs.magentorestapi.utils;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -23,7 +24,7 @@ public class PreferencesCacheManager {
 
 
     private PreferencesCacheManager(Context context) {
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        sharedPreferences = context.getSharedPreferences("MagentoPrefs", Context.MODE_PRIVATE);
     }
 
     public static void initialize(Context context) {
