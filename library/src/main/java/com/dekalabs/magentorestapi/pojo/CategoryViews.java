@@ -70,7 +70,7 @@ public class CategoryViews implements Parcelable {
     public static class Navigation implements Parcelable {
         private List<Product> products;
 
-        @JsonProperty("total_count")
+        @JsonProperty("category_size")
         private int totalProducts;
 
         public List<Product> getProducts() {
