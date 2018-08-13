@@ -63,6 +63,7 @@ public class Jackson {
             .setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()))
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
+            .configure(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS, true)
             .registerModule(new SimpleModule()
                     .addDeserializer(Boolean.class, new YesNoBooleanDeserializer()));
 

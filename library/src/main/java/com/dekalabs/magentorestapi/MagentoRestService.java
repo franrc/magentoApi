@@ -9,11 +9,14 @@ import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.dto.Pagination;
 import com.dekalabs.magentorestapi.dto.ProductView;
+import com.dekalabs.magentorestapi.dto.ReviewPost;
+import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
+import com.dekalabs.magentorestapi.pojo.review.ReviewItem;
 import com.dekalabs.magentorestapi.utils.DatabaseUtils;
 import com.dekalabs.magentorestapi.utils.FilterOptions;
 import com.dekalabs.magentorestapi.utils.PreferencesCacheManager;
@@ -467,5 +470,42 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                 .build();
 
         executeListOnline(firstCallback, service.getProductBasicDataBySkuList(queryString));
+    }
+
+    public void getProductReviews(Long productID, ServiceCallback<List<ReviewItem>> callback) {
+
+        ServiceCallback<MagentoResponse<List<ReviewItem>>> firstCallback = new ServiceCallback<MagentoResponse<List<ReviewItem>>>() {
+            @Override
+            public void onResults(MagentoResponse<List<ReviewItem>> results) {
+                if(results == null) return;
+
+                if(results.getError() == null) {
+                    callback.onResults(results.getData());
+                    callback.onFinish();
+                }
+                else {
+                    Log.e("MagentoRestService", "Error retrieving Reviews of product: " + results.getError().getError());
+                    callback.onError(-1, results.getError().getError());
+                    callback.onFinish();
+                }
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+                callback.onFinish();
+            }
+        };
+
+
+        Map<String, String> queryString = new FilterOptions()
+                .sort("created_at", FilterOptions.SORT_DIRECTION.DESC)
+                .build();
+
+        executeOnline(firstCallback, service.getProductReviews(productID, queryString));
+    }
+
+    public void sendGuestReview(ReviewPost reviewPost, ServiceCallback<ReviewResponseDTO> callback) {
+        executeSimpleOnline(callback, service.sendGuestReview(reviewPost));
     }
 }

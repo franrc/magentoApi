@@ -43,7 +43,7 @@ public class FilterOptions {
 
     public FilterOptions sort(String name, SORT_DIRECTION direction) {
         filterMap.put("searchCriteria[sortOrders]["+ sortValue + "][field]", name);
-        filterMap.put("searchCriteria[sortOrders]["+ sortValue + ")][direction]", direction.name());
+        filterMap.put("searchCriteria[sortOrders]["+ sortValue + "][direction]", direction.name());
 
         sortValue++;
 

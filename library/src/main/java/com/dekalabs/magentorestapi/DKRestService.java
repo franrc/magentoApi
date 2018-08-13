@@ -234,6 +234,54 @@ public abstract class DKRestService<IFSERVICE> {
         }
     }
 
+    protected <ServerType> void executeSimpleOnline(final ServiceCallback<ServerType> callback, Call<ServerType> call) {
+        if (ServiceUtils.isInternetEnabled(currentContext)) {
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                call.enqueue(new Callback<ServerType>() {
+                    @Override
+                    public void onResponse(Call<ServerType> call, Response<ServerType> response) {
+                        int responseCode = response.code();
+
+                        if(responseCode >= 200 && responseCode <= 208) {
+                            ServerType results = response.body();
+
+                            callback.onResults(results);
+                            callback.onFinish();
+                        }
+                        else if(response.code() == 401) {
+                            EventBus.getDefault().post(new TokenException());
+                            return;
+                        }
+                        else {
+                            callback.onError(response.code(), response.message());
+                            callback.onFinish();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ServerType> call, Throwable t) {
+                        callback.onError(currentContext, t.getMessage());
+                        callback.onFinish();
+                    }
+                });
+            } else {
+                try {
+                    Response<ServerType> response = call.execute();
+                    ServerType results = response.body();
+
+                    callback.onResults(results);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                callback.onFinish();
+            }
+        } else {
+            callback.onNotInternetError();
+            callback.onFinish();
+        }
+    }
+
     protected <ServerType> void executeListOnline(final ServiceCallback<MagentoListResponse<ServerType>> callback, Call<MagentoListResponse<ServerType>> call) {
         if (ServiceUtils.isInternetEnabled(currentContext)) {
             if (Looper.myLooper() == Looper.getMainLooper()) {
