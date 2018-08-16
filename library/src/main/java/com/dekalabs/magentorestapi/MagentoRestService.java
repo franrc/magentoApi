@@ -22,9 +22,11 @@ import com.dekalabs.magentorestapi.utils.FilterOptions;
 import com.dekalabs.magentorestapi.utils.PreferencesCacheManager;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import java8.util.stream.StreamSupport;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -342,8 +344,8 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                     Product product = results.getData();
 
                     if(Product.TYPE_SIMPLE.equals(product.getTypeId())) {
-                        callback.onResults(new ProductView(product));
-                        callback.onFinish();
+
+                        getProductViewFinalPrice(new ProductView(product), callback);
                     }
                     else {
                         //As type is configurable, we must retrieve the configurable attributes and this product children
@@ -367,6 +369,105 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         executeOnline(bySkuCallback, service.getProductDetail(sku, storeId));
     }
 
+    private void getProductFinalPrice(Long productId, ServiceCallback<Product> callback) {
+
+        Map<String, String> queryString = new FilterOptions()
+                .showFields("final_price")
+                .build();
+
+        executeSimpleOnline(callback, service.getProductViewData(productId, queryString));
+    }
+
+    private void getProductViewFinalPrice(ProductView productView, ServiceCallback<ProductView> callback) {
+
+        Map<String, String> queryString = new FilterOptions()
+                .showFields("final_price")
+                .build();
+
+        ServiceCallback<Product> firstCallback = new ServiceCallback<Product>() {
+            @Override
+            public void onResults(Product results) {
+                if(results == null) {
+                    callback.onError(-1, "Error getting price");
+                    callback.onFinish();
+
+                    return;
+                }
+
+                productView.getMainProduct().setFinalPrice(results.getFinalPrice());
+                callback.onResults(productView);
+                callback.onFinish();
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+                callback.onFinish();
+            }
+        };
+
+        executeSimpleOnline(firstCallback, service.getProductViewData(productView.getMainProduct().getId(), queryString));
+    }
+
+
+    private void getProductsFinalPrice(List<Product> products, ServiceCallback<List<Product>> callback) {
+        List<Product> productsWithPrice = new ArrayList<>();
+
+        StreamSupport.stream(products)
+                .forEach(p -> {
+                    getProductFinalPrice(p.getId(), new ServiceCallback<Product>() {
+                        @Override
+                        public void onResults(Product results) {
+                            if(results != null) {
+                                p.setFinalPrice(results.getFinalPrice());
+                            }
+
+                            productsWithPrice.add(p);
+                        }
+
+                        @Override
+                        public void onError(int errorCode, String message) {
+                            productsWithPrice.add(p);
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            if(productsWithPrice.size() == products.size()) {
+                                callback.onResults(productsWithPrice);
+                                callback.onFinish();
+                            }
+                        }
+                    });
+                });
+    }
+
+    private void getProductIdsFinalPrice(List<Long> productIds, ServiceCallback<List<Product>> callback) {
+        List<Product> productsWithPrice = new ArrayList<>();
+
+        StreamSupport.stream(productIds)
+                .forEach(pId -> {
+                    getProductFinalPrice(pId, new ServiceCallback<Product>() {
+                        @Override
+                        public void onResults(Product results) {
+                            productsWithPrice.add(results);
+                        }
+
+                        @Override
+                        public void onError(int errorCode, String message) {
+                            productsWithPrice.add(new Product(pId));
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            if(productsWithPrice.size() == productIds.size()) {
+                                callback.onResults(productsWithPrice);
+                                callback.onFinish();
+                            }
+                        }
+                    });
+                });
+    }
+
 
     private void getProductChildren(Product product, ServiceCallback<ProductView> callback) {
 
@@ -379,12 +480,17 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
                 if(results.getError() == null) {
 
-                    //Now we have the product children, with the configurable list
-                    ProductView productView = new ProductView(product);
-                    productView.setChildren(results.getData());
+                    getProductsFinalPrice(results.getData(), new ServiceCallback<List<Product>>() {
+                        @Override
+                        public void onResults(List<Product> pricedProducts) {
+                            //Now we have the product children, with the configurable list
+                            ProductView productView = new ProductView(product);
+                            productView.setChildren(pricedProducts);
 
-                    //Let's go for the attributes!
-                    getConfigurableProductAttributes(productView, callback);
+                            //Let's go for the attributes!
+                            getConfigurableProductAttributes(productView, callback);
+                        }
+                    });
                 }
                 else {
                     Log.e("MagentoRestService", "Error retrieving children products: " + results.getError().getError());

@@ -79,4 +79,7 @@ public interface MagentoService {
     @GET("review/reviews/{productId}")
     Call<List<ReviewItem>> getProductReviews(@Path("productId") Long productId, @QueryMap Map<String, String> params);
 
+    @GET("product-views/id/{id}")
+    Call<Product> getProductViewData(@Path("id") Long productId, @QueryMap Map<String, String> params);
+
 }
