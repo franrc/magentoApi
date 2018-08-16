@@ -372,7 +372,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     private void getProductFinalPrice(Long productId, ServiceCallback<Product> callback) {
 
         Map<String, String> queryString = new FilterOptions()
-                .showFields("final_price")
+                .showFields("id,final_price")
                 .build();
 
         executeSimpleOnline(callback, service.getProductViewData(productId, queryString));
@@ -381,7 +381,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     private void getProductViewFinalPrice(ProductView productView, ServiceCallback<ProductView> callback) {
 
         Map<String, String> queryString = new FilterOptions()
-                .showFields("final_price")
+                .showFields("id,final_price")
                 .build();
 
         ServiceCallback<Product> firstCallback = new ServiceCallback<Product>() {
