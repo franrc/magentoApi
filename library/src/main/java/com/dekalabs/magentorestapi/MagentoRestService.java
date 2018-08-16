@@ -441,7 +441,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                 });
     }
 
-    private void getProductIdsFinalPrice(List<Long> productIds, ServiceCallback<List<Product>> callback) {
+    public void getProductIdsFinalPrice(List<Long> productIds, ServiceCallback<List<Product>> callback) {
         List<Product> productsWithPrice = new ArrayList<>();
 
         StreamSupport.stream(productIds)
