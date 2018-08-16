@@ -115,13 +115,17 @@ public class ProductView {
 
         if(attributes == null || attributes.size() == 0) return children.get(0);
 
-        AttributeOption[] attrs = new AttributeOption[attributes.size()];
+        Collections.sort(children, (p1, p2) -> Double.compare(p1.getPrice(), p2.getPrice()));
 
-        for(int i = 0; i < attributes.size(); i++) {
-            attrs[i] = attributes.get(i).getOptions().get(0);
-        }
+        return children.get(0);
 
-        return findProductBy(attrs);
+//        AttributeOption[] attrs = new AttributeOption[attributes.size()];
+//
+//        for(int i = 0; i < attributes.size(); i++) {
+//            attrs[i] = attributes.get(i).getOptions().get(0);
+//        }
+//
+//        return findProductBy(attrs);
     }
 
     private Product getChildrenProductById(Long id) {
