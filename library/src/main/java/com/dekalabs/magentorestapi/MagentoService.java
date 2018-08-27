@@ -3,6 +3,7 @@ package com.dekalabs.magentorestapi;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
+import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
 import com.dekalabs.magentorestapi.pojo.Category;
@@ -82,4 +83,6 @@ public interface MagentoService {
     @GET("product-views/id/{id}")
     Call<Product> getProductViewData(@Path("id") Long productId, @QueryMap Map<String, String> params);
 
+    @GET("search-views")
+    Call<ProductSearchDTO> searchProducts(@QueryMap Map<String, String> params);
 }

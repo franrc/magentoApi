@@ -1,14 +1,13 @@
 package com.dekalabs.magentorestapi.utils;
 
-import com.dekalabs.magentorestapi.pojo.Address;
+import com.dekalabs.magentorestapi.dto.ProductView;
 import com.dekalabs.magentorestapi.pojo.AttributeOption;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
-import com.dekalabs.magentorestapi.pojo.Customer;
-import com.dekalabs.magentorestapi.pojo.MediaGallery;
 import com.dekalabs.magentorestapi.pojo.Product;
-import com.dekalabs.magentorestapi.pojo.ProductAttributes;
+import com.dekalabs.magentorestapi.pojo.WishList;
 
+import java.util.Arrays;
 import java.util.List;
 
 import io.realm.Realm;
@@ -16,6 +15,7 @@ import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.RealmModule;
+import java8.util.stream.StreamSupport;
 
 /**
  * Created by fran on 25/07/2018.
@@ -163,6 +163,122 @@ public class DatabaseUtils {
                                                             .equalTo("value", value)
                                                             .findFirst();
         return copyFromRealm(realm, attr, true);
+    }
+
+    public void addProductToWishList(Long product) {
+        if(product == null) return;
+
+        Realm realm = getRealmInstance();
+        realm.beginTransaction();
+
+        WishList wishList = realm.where(WishList.class).findFirst();
+
+        if(wishList == null) {
+            wishList = new WishList();
+            wishList.setId(1L);
+        }
+
+        wishList.getProducts().add(product);
+
+        realm.copyToRealmOrUpdate(wishList);
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    public boolean removeProductFromWishList(Long product) {
+        if(product == null) return false;
+
+        Realm realm = getRealmInstance();
+        realm.beginTransaction();
+
+        WishList wishList = realm.where(WishList.class).findFirst();
+
+        boolean removed = false;
+
+        if(wishList != null) {
+            removed = wishList.getProducts().remove(product);
+            realm.copyToRealmOrUpdate(wishList);
+        }
+
+        realm.commitTransaction();
+        realm.close();
+
+        return removed;
+    }
+
+    public WishList getWishList() {
+        Realm realm = getRealmInstance();
+        WishList wishList = realm.where(WishList.class).findFirst();
+
+        if(wishList != null) {
+            wishList = realm.copyFromRealm(wishList);
+        }
+
+        realm.close();
+        return wishList;
+    }
+
+    public void markProductViewAsFavourite(ProductView productView) {
+        if(productView == null) return;
+
+        markProductsAsFavourites(Arrays.asList(productView));
+    }
+
+    public void markProductsAsFavourites(List<ProductView> productViews) {
+        if(productViews == null || productViews.size() == 0) return;
+
+        Realm realm = getRealmInstance();
+        WishList wishList = realm.where(WishList.class).findFirst();
+
+        if(wishList == null) {
+            realm.close();
+            return;
+        }
+
+        final WishList unmanagedWishList = realm.copyFromRealm(wishList);
+
+        StreamSupport.stream(productViews)
+                .parallel()
+                .forEach(pw -> {
+                    pw.getMainProduct().setFavourite(unmanagedWishList.getProducts().contains(pw.getMainProduct().getId()));
+
+                    if(pw.getChildren() != null && pw.getChildren().size() > 0) {
+                        StreamSupport.stream(pw.getChildren())
+                                .parallel()
+                                .forEach(p -> {
+                                    p.setFavourite(unmanagedWishList.getProducts().contains(p.getId()));
+                                });
+                    }
+                });
+
+        realm.close();
+    }
+
+    public void checkProductFavourite(Product product) {
+        if(product == null) return;
+
+        checkProductFavourite(Arrays.asList(product));
+    }
+
+    public void checkProductFavourite(List<Product> products) {
+        if(products == null && products.size() == 0) return;
+
+        Realm realm = getRealmInstance();
+        WishList wishList = realm.where(WishList.class).findFirst();
+
+        if(wishList == null) {
+            realm.close();
+            return;
+        }
+
+        final WishList unmanagedWishList = realm.copyFromRealm(wishList);
+
+        StreamSupport.stream(products)
+                .parallel()
+                .forEach(p -> p.setFavourite(unmanagedWishList.getProducts().contains(p.getId())));
+
+        realm.close();
     }
 
     private <DATA extends RealmObject> DATA copyFromRealm(Realm realm, DATA result, boolean closeRealm) {

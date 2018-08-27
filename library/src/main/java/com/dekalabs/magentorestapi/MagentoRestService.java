@@ -1,6 +1,8 @@
 package com.dekalabs.magentorestapi;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
@@ -8,6 +10,7 @@ import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.dto.Pagination;
+import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ProductView;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
@@ -16,6 +19,7 @@ import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
+import com.dekalabs.magentorestapi.pojo.WishList;
 import com.dekalabs.magentorestapi.pojo.review.ReviewItem;
 import com.dekalabs.magentorestapi.utils.DatabaseUtils;
 import com.dekalabs.magentorestapi.utils.FilterOptions;
@@ -168,48 +172,48 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         executeOnline(callback, service.getCategoryDetail(categoryId, null));
     }
 
-    public void getProductsByCategory(Long categoryId, ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Product>> callback) {
-
-        final Long categoryID = categoryId == null ? MagentoRestConfiguration.getRootCategoryId() : categoryId;
-
-        ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Product>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Product>>() {
-            @Override
-            public void onResults(MagentoListResponse<Product> results) {
-                if(results == null) return;
-
-                if(results.getError() == null) {
-                    DatabaseUtils database = new DatabaseUtils();
-                    database.saveProducts(categoryID, results.getItems());
-
-                    MagentoListResponse<Product> magentoList = new MagentoListResponse<>();
-                    magentoList.setItems(database.getProductsByCategory(categoryID));
-
-                    callback.onResults(magentoList);
-                }
-                else {
-                    Log.e("MagentoRestService", "Error retrieving products: " + results.getError().getError());
-                }
-            }
-
-            @Override
-            public void onError(int errorCode, String message) {
-                callback.onError(errorCode, message);
-            }
-
-            @Override
-            public void onFinish() {
-                callback.onFinish();
-            }
-        };
-
-        Map<String, String> queryString = new FilterOptions()
-                                            .addFilter("category_id", categoryId != null ? String.valueOf(categoryId) : null, FilterOptions.EQUALS)
-                                            .and()
-                                            .addFilter("type_id", "configurable", FilterOptions.EQUALS)
-                                            .build();
-
-        executeListOnline(firstCallback, service.getProductsByCategory(queryString));
-    }
+//    public void getProductsByCategory(Long categoryId, ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Product>> callback) {
+//
+//        final Long categoryID = categoryId == null ? MagentoRestConfiguration.getRootCategoryId() : categoryId;
+//
+//        ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Product>> firstCallback = new ServiceCallbackOnlyOnServiceResults<MagentoListResponse<Product>>() {
+//            @Override
+//            public void onResults(MagentoListResponse<Product> results) {
+//                if(results == null) return;
+//
+//                if(results.getError() == null) {
+//                    DatabaseUtils database = new DatabaseUtils();
+//                    database.saveProducts(categoryID, results.getItems());
+//
+//                    MagentoListResponse<Product> magentoList = new MagentoListResponse<>();
+//                    magentoList.setItems(database.getProductsByCategory(categoryID));
+//
+//                    callback.onResults(magentoList);
+//                }
+//                else {
+//                    Log.e("MagentoRestService", "Error retrieving products: " + results.getError().getError());
+//                }
+//            }
+//
+//            @Override
+//            public void onError(int errorCode, String message) {
+//                callback.onError(errorCode, message);
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                callback.onFinish();
+//            }
+//        };
+//
+//        Map<String, String> queryString = new FilterOptions()
+//                                            .addFilter("category_id", categoryId != null ? String.valueOf(categoryId) : null, FilterOptions.EQUALS)
+//                                            .and()
+//                                            .addFilter("type_id", "configurable", FilterOptions.EQUALS)
+//                                            .build();
+//
+//        executeListOnline(firstCallback, service.getProductsByCategory(queryString));
+//    }
 
     public void getProductsByCategoryView(Long categoryId, ServiceCallbackOnlyOnServiceResults<CategoryViews> callback) {
         getProductsByCategoryView(categoryId, null, callback);
@@ -230,6 +234,8 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 //                    if(category != null) {
 //                        DatabaseUtils.getInstance().saveProducts(categoryID, category.getProductList());
 //                    }
+
+                    new DatabaseUtils().checkProductFavourite(category.getProductList());
 
                     callback.onResults(category);
                 }
@@ -344,6 +350,8 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                     Product product = results.getData();
 
                     if(Product.TYPE_SIMPLE.equals(product.getTypeId())) {
+                        //Check if its favourite
+                        new DatabaseUtils().checkProductFavourite(product);
 
                         getProductViewFinalPrice(new ProductView(product), callback);
                     }
@@ -487,6 +495,9 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                             ProductView productView = new ProductView(product);
                             productView.setChildren(pricedProducts);
 
+                            //Check if it's needed to mark as favourite
+                            new Handler(Looper.getMainLooper()).post(() -> new DatabaseUtils().markProductViewAsFavourite(productView));
+
                             //Let's go for the attributes!
                             getConfigurableProductAttributes(productView, callback);
                         }
@@ -613,5 +624,63 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
     public void sendGuestReview(ReviewPost reviewPost, ServiceCallback<ReviewResponseDTO> callback) {
         executeSimpleOnline(callback, service.sendGuestReview(reviewPost));
+    }
+
+
+    public void addProductToWishList(Long product, ServiceCallback<Boolean> callback) {
+        new DatabaseUtils().addProductToWishList(product);
+
+        callback.onResults(true);
+        callback.onFinish();
+    }
+
+    public void removeProductFromWishList(Long product, ServiceCallback<Boolean> callback) {
+        callback.onResults(new DatabaseUtils().removeProductFromWishList(product));
+        callback.onFinish();
+    }
+
+    public void getWishList(ServiceCallback<WishList> callback) {
+        callback.onResults(new DatabaseUtils().getWishList());
+        callback.onFinish();
+    }
+
+
+    /** Search **/
+    public void searchProducts(String query, Pagination pagination, ServiceCallbackOnlyOnServiceResults<List<Product>> callback) {
+
+        ServiceCallbackOnlyOnServiceResults<ProductSearchDTO> firstCallback = new ServiceCallbackOnlyOnServiceResults<ProductSearchDTO>() {
+            @Override
+            public void onResults(ProductSearchDTO results) {
+                if (results == null) return;
+//                    if(category != null) {
+//                        DatabaseUtils.getInstance().saveProducts(categoryID, category.getProductList());
+//                    }
+
+                new DatabaseUtils().checkProductFavourite(results.getProducts());
+
+                callback.onResults(results.getProducts());
+            }
+
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+            }
+
+            @Override
+            public void onFinish() {
+                callback.onFinish();
+            }
+        };
+
+        Map<String, String> queryString = new FilterOptions()
+                .sort("position", FilterOptions.SORT_DIRECTION.ASC)
+                .showFields("products")
+                .addPagination(pagination)
+                .build();
+
+        queryString.put("query", query);
+
+        executeSimpleOnline(firstCallback, service.searchProducts(queryString));
     }
 }

@@ -70,6 +70,8 @@ public class Product extends RealmObject implements Parcelable {
 //    @JsonProperty("tier_prices")
 //    private List<TierPrice> tierPrices;
 
+    private boolean favourite;
+
 
     public Long getId() {
         return id;
@@ -209,6 +211,14 @@ public class Product extends RealmObject implements Parcelable {
         this.subProductsCount = subProductsCount;
     }
 
+    public boolean isFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        this.favourite = favourite;
+    }
+
     @SuppressWarnings("unchecked")
     @JsonProperty("extension_attributes")
     private void unpackExtensionAttrs(Map<String,Object> extension) {
@@ -277,7 +287,6 @@ public class Product extends RealmObject implements Parcelable {
                 AttributeOption option = database.findAttributeByValue(code, value.toString());
 
                 if(option != null) {
-                    Log.i("MagentoRestApi", "CustomAttribute found : " + option.getLabel());
                     productAttributes.getValues().add(option.getLabel());
                 }
                 else {
@@ -314,6 +323,7 @@ public class Product extends RealmObject implements Parcelable {
         dest.writeParcelable(this.stock, flags);
         dest.writeDouble(finalPrice);
         dest.writeInt(subProductsCount);
+        dest.writeInt(favourite ? 1 : 0);
     }
 
     public Product() {
@@ -354,6 +364,7 @@ public class Product extends RealmObject implements Parcelable {
         this.stock = in.readParcelable(ProductStock.class.getClassLoader());
         this.finalPrice = in.readDouble();
         this.subProductsCount = in.readInt();
+        this.favourite = in.readInt() == 1;
     }
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {
