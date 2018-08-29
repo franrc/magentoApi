@@ -262,7 +262,7 @@ public class DatabaseUtils {
     }
 
     public void checkProductFavourite(List<Product> products) {
-        if(products == null && products.size() == 0) return;
+        if(products == null || products.size() == 0) return;
 
         Realm realm = getRealmInstance();
         WishList wishList = realm.where(WishList.class).findFirst();
