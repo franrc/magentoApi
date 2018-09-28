@@ -165,8 +165,8 @@ public class DatabaseUtils {
         return copyFromRealm(realm, attr, true);
     }
 
-    public void addProductToWishList(Long productId) {
-        if(productId == null) return;
+    public void addProductToWishList(String productSku) {
+        if(productSku == null) return;
 
         Realm realm = getRealmInstance();
         realm.beginTransaction();
@@ -178,7 +178,7 @@ public class DatabaseUtils {
             wishList.setId(1L);
         }
 
-        wishList.getProductIds().add(productId);
+        wishList.getProductSkus().add(productSku);
 
         realm.copyToRealmOrUpdate(wishList);
 
@@ -186,8 +186,8 @@ public class DatabaseUtils {
         realm.close();
     }
 
-    public boolean removeProductFromWishList(Long product) {
-        if(product == null) return false;
+    public boolean removeProductFromWishList(String productSku) {
+        if(productSku == null) return false;
 
         Realm realm = getRealmInstance();
         realm.beginTransaction();
@@ -197,7 +197,7 @@ public class DatabaseUtils {
         boolean removed = false;
 
         if(wishList != null) {
-            removed = wishList.getProductIds().remove(product);
+            removed = wishList.getProductSkus().remove(productSku);
             realm.copyToRealmOrUpdate(wishList);
         }
 
@@ -241,13 +241,13 @@ public class DatabaseUtils {
         StreamSupport.stream(productViews)
                 .parallel()
                 .forEach(pw -> {
-                    pw.getMainProduct().setFavourite(unmanagedWishList.getProductIds().contains(pw.getMainProduct().getId()));
+                    pw.getMainProduct().setFavourite(unmanagedWishList.getProductSkus().contains(pw.getMainProduct().getSku()));
 
                     if(pw.getChildren() != null && pw.getChildren().size() > 0) {
                         StreamSupport.stream(pw.getChildren())
                                 .parallel()
                                 .forEach(p -> {
-                                    p.setFavourite(unmanagedWishList.getProductIds().contains(p.getId()));
+                                    p.setFavourite(unmanagedWishList.getProductSkus().contains(p.getSku()));
                                 });
                     }
                 });
@@ -276,7 +276,7 @@ public class DatabaseUtils {
 
         StreamSupport.stream(products)
                 .parallel()
-                .forEach(p -> p.setFavourite(unmanagedWishList.getProductIds().contains(p.getId())));
+                .forEach(p -> p.setFavourite(unmanagedWishList.getProductSkus().contains(p.getSku())));
 
         realm.close();
     }

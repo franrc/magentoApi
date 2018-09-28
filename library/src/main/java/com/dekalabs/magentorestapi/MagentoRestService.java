@@ -638,15 +638,15 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     }
 
 
-    public void addProductToWishList(Long product, ServiceCallback<Boolean> callback) {
-        new DatabaseUtils().addProductToWishList(product);
+    public void addProductToWishList(String productSku, ServiceCallback<Boolean> callback) {
+        new DatabaseUtils().addProductToWishList(productSku);
 
         callback.onResults(true);
         callback.onFinish();
     }
 
-    public void removeProductFromWishList(Long product, ServiceCallback<Boolean> callback) {
-        callback.onResults(new DatabaseUtils().removeProductFromWishList(product));
+    public void removeProductFromWishList(String productSku, ServiceCallback<Boolean> callback) {
+        callback.onResults(new DatabaseUtils().removeProductFromWishList(productSku));
         callback.onFinish();
     }
 
@@ -659,7 +659,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             return;
         }
 
-        getProductIdsFinalPrice(wishList.getProductIds(), new ServiceCallback<List<Product>>() {
+        getBasicProductDataBySkuList(wishList.getProductSkus(), new ServiceCallback<List<Product>>() {
             @Override
             public void onResults(List<Product> results) {
                 wishList.setProducts(results);
@@ -673,9 +673,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                 callback.onFinish();
             }
         });
-
     }
-
 
     /** Search **/
     public void searchProducts(String query, Pagination pagination, ServiceCallbackOnlyOnServiceResults<List<Product>> callback) {
