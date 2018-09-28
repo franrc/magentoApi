@@ -165,8 +165,8 @@ public class DatabaseUtils {
         return copyFromRealm(realm, attr, true);
     }
 
-    public void addProductToWishList(Long product) {
-        if(product == null) return;
+    public void addProductToWishList(Long productId) {
+        if(productId == null) return;
 
         Realm realm = getRealmInstance();
         realm.beginTransaction();
@@ -178,7 +178,7 @@ public class DatabaseUtils {
             wishList.setId(1L);
         }
 
-        wishList.getProducts().add(product);
+        wishList.getProducts().add(realm.where(Product.class).equalTo("id", productId).findFirst());
 
         realm.copyToRealmOrUpdate(wishList);
 

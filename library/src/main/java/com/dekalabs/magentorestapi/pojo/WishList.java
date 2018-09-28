@@ -3,6 +3,8 @@ package com.dekalabs.magentorestapi.pojo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.List;
+
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -12,7 +14,7 @@ public class WishList extends RealmObject implements Parcelable {
     @PrimaryKey
     private Long id;
 
-    private RealmList<Long> products;
+    private RealmList<Product> products;
 
     public Long getId() {
         return id;
@@ -22,11 +24,11 @@ public class WishList extends RealmObject implements Parcelable {
         this.id = id;
     }
 
-    public RealmList<Long> getProducts() {
+    public List<Product> getProducts() {
         return products;
     }
 
-    public void setProducts(RealmList<Long> products) {
+    public void setProducts(RealmList<Product> products) {
         this.products = products;
     }
 
