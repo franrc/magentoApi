@@ -34,6 +34,10 @@ public class Filter implements Parcelable {
 
     public void setFilterCode(String filterCode) {
         this.filterCode = filterCode;
+
+        //TODO HACK!
+        if(this.filterCode.equals("category_ids"))
+            this.filterCode = "category_id";
     }
 
     public List<FilterValues> getFilterValues() {
