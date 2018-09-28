@@ -7,6 +7,7 @@ import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 public class WishList extends RealmObject implements Parcelable {
@@ -14,7 +15,10 @@ public class WishList extends RealmObject implements Parcelable {
     @PrimaryKey
     private Long id;
 
-    private RealmList<Product> products;
+    private RealmList<Long> productIds;
+
+    @Ignore
+    private List<Product> products;
 
     public Long getId() {
         return id;
@@ -24,11 +28,19 @@ public class WishList extends RealmObject implements Parcelable {
         this.id = id;
     }
 
+    public RealmList<Long> getProductIds() {
+        return productIds != null ? productIds : new RealmList<>();
+    }
+
+    public void setProductIds(RealmList<Long> productIds) {
+        this.productIds = productIds;
+    }
+
     public List<Product> getProducts() {
         return products;
     }
 
-    public void setProducts(RealmList<Product> products) {
+    public void setProducts(List<Product> products) {
         this.products = products;
     }
 

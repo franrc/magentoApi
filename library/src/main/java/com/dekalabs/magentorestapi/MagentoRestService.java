@@ -651,8 +651,29 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     }
 
     public void getWishList(ServiceCallback<WishList> callback) {
-        callback.onResults(new DatabaseUtils().getWishList());
-        callback.onFinish();
+        WishList wishList = new DatabaseUtils().getWishList();
+
+        if(wishList == null) {
+            callback.onResults(null);
+            callback.onFinish();
+            return;
+        }
+
+        getProductIdsFinalPrice(wishList.getProductIds(), new ServiceCallback<List<Product>>() {
+            @Override
+            public void onResults(List<Product> results) {
+                wishList.setProducts(results);
+                callback.onResults(wishList);
+                callback.onFinish();
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+                callback.onFinish();
+            }
+        });
+
     }
 
 
