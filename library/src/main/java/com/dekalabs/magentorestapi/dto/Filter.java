@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 public class Filter implements Parcelable {
 
@@ -41,6 +42,19 @@ public class Filter implements Parcelable {
 
     public void setFilterValues(List<FilterValues> filterValues) {
         this.filterValues = filterValues;
+    }
+
+    public String getCommaSeparatedValues() {
+        if(filterValues == null || filterValues.size() == 0) return null;
+
+
+        StringBuilder builder = new StringBuilder();
+
+        for(FilterValues fv : filterValues) {
+            builder.append(fv.getValue()).append(",");
+        }
+
+        return builder.toString().substring(builder.length() -1);
     }
 
     @Override

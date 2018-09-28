@@ -1,8 +1,10 @@
 package com.dekalabs.magentorestapi.utils;
 
+import com.dekalabs.magentorestapi.dto.Filter;
 import com.dekalabs.magentorestapi.dto.Pagination;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FilterOptions {
@@ -35,6 +37,31 @@ public class FilterOptions {
         filterMap.put("searchCriteria[filterGroups]["+ andValue + "][filters]["+ orValue +"][field]", name);
         filterMap.put("searchCriteria[filterGroups]["+ andValue + "][filters]["+ orValue +"][value]", value);
         filterMap.put("searchCriteria[filterGroups]["+ andValue  + "][filters]["+ orValue +"][conditionType]", conditionType    );
+
+        canAdd = false;
+
+        return this;
+    }
+
+    public FilterOptions applyClientFilter(List<Filter> filters) {
+        if(filters == null) return this;
+
+        if(! canAdd) {
+            throw new IllegalStateException("You must call and() or or() before add any filter");
+        }
+
+        for(Filter filter : filters) {
+
+            String commaSeparatedValues = filter.getCommaSeparatedValues();
+
+            if(commaSeparatedValues == null) continue;
+
+            filterMap.put("searchCriteria[filterGroups][" + andValue + "][filters][" + orValue + "][field]", filter.getFilterCode());
+            filterMap.put("searchCriteria[filterGroups][" + andValue + "][filters][" + orValue + "][value]", commaSeparatedValues);
+            filterMap.put("searchCriteria[filterGroups][" + andValue + "][filters][" + orValue + "][conditionType]", "in");
+
+            or();
+        }
 
         canAdd = false;
 

@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
+import com.dekalabs.magentorestapi.dto.Filter;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.dto.Pagination;
@@ -220,6 +221,10 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     }
 
     public void getProductsByCategoryView(Long categoryId, Pagination pagination, ServiceCallbackOnlyOnServiceResults<CategoryViews> callback) {
+        getProductsByCategoryView(categoryId, pagination, "position", null, callback);
+    }
+
+    public void getProductsByCategoryView(Long categoryId, Pagination pagination, String sort, List<Filter> filters, ServiceCallbackOnlyOnServiceResults<CategoryViews> callback) {
 
         final Long categoryID = categoryId == null ? MagentoRestConfiguration.getRootCategoryId() : categoryId;
 
@@ -255,8 +260,14 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             }
         };
 
-        Map<String, String> queryString = new FilterOptions()
-                .sort("position", FilterOptions.SORT_DIRECTION.ASC)
+        FilterOptions filterOptions = new FilterOptions();
+
+        if(filters != null) {
+            filterOptions = filterOptions.applyClientFilter(filters).and();
+        }
+
+        Map<String, String> queryString = filterOptions
+                .sort(sort, FilterOptions.SORT_DIRECTION.ASC)
                 .showFields("category[id,name],navigation[category_size,products[final_price,id,sku,name,type_id,extension_attributes,custom_attributes],filters]")
                 .addPagination(pagination)
                 .build();
