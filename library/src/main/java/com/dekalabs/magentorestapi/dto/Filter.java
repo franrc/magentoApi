@@ -51,14 +51,13 @@ public class Filter implements Parcelable {
     public String getCommaSeparatedValues() {
         if(filterValues == null || filterValues.size() == 0) return null;
 
-
         StringBuilder builder = new StringBuilder();
 
         for(FilterValues fv : filterValues) {
             builder.append(fv.getValue()).append(",");
         }
 
-        return builder.toString().substring(builder.length() -1);
+        return builder.toString().substring(0, builder.length() -1);
     }
 
     @Override
