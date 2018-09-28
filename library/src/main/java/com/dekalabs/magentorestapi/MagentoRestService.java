@@ -638,41 +638,23 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     }
 
 
-    public void addProductToWishList(String productSku, ServiceCallback<Boolean> callback) {
-        new DatabaseUtils().addProductToWishList(productSku);
+    public void addProductToWishList(Product product, ServiceCallback<Boolean> callback) {
+        new DatabaseUtils().addProductToWishList(product);
 
         callback.onResults(true);
         callback.onFinish();
     }
 
-    public void removeProductFromWishList(String productSku, ServiceCallback<Boolean> callback) {
-        callback.onResults(new DatabaseUtils().removeProductFromWishList(productSku));
+    public void removeProductFromWishList(Product product, ServiceCallback<Boolean> callback) {
+        callback.onResults(new DatabaseUtils().removeProductFromWishList(product));
         callback.onFinish();
     }
 
     public void getWishList(ServiceCallback<WishList> callback) {
         WishList wishList = new DatabaseUtils().getWishList();
 
-        if(wishList == null) {
-            callback.onResults(null);
-            callback.onFinish();
-            return;
-        }
-
-        getBasicProductDataBySkuList(wishList.getProductSkus(), new ServiceCallback<List<Product>>() {
-            @Override
-            public void onResults(List<Product> results) {
-                wishList.setProducts(results);
-                callback.onResults(wishList);
-                callback.onFinish();
-            }
-
-            @Override
-            public void onError(int errorCode, String message) {
-                callback.onError(errorCode, message);
-                callback.onFinish();
-            }
-        });
+        callback.onResults(wishList);
+        callback.onFinish();
     }
 
     /** Search **/
