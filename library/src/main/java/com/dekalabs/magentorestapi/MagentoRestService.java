@@ -257,7 +257,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
         Map<String, String> queryString = new FilterOptions()
                 .sort("position", FilterOptions.SORT_DIRECTION.ASC)
-                .showFields("category[id,name],navigation[category_size,products[final_price,id,sku,name,type_id,extension_attributes,custom_attributes]]")
+                .showFields("category[id,name],navigation[category_size,products[final_price,id,sku,name,type_id,extension_attributes,custom_attributes],filters]")
                 .addPagination(pagination)
                 .build();
 

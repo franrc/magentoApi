@@ -3,10 +3,21 @@ package com.dekalabs.magentorestapi.pojo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.dekalabs.magentorestapi.Jackson;
+import com.dekalabs.magentorestapi.dto.Filter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import java8.util.stream.Collectors;
+import java8.util.stream.StreamSupport;
 
 public class CategoryViews implements Parcelable {
 
@@ -14,6 +25,7 @@ public class CategoryViews implements Parcelable {
     private String name;
 
     private Navigation navigation;
+
 
     public Navigation getNavigation() {
         return navigation;
@@ -66,9 +78,10 @@ public class CategoryViews implements Parcelable {
         }
     }
 
-
     public static class Navigation implements Parcelable {
         private List<Product> products;
+
+        private List<Filter> filterList;
 
         @JsonProperty("category_size")
         private int totalProducts;
@@ -88,6 +101,37 @@ public class CategoryViews implements Parcelable {
         public void setTotalProducts(int totalProducts) {
             this.totalProducts = totalProducts;
         }
+
+        public List<Filter> getFilterList() {
+            return filterList;
+        }
+
+        public void setFilterList(List<Filter> filterList) {
+            this.filterList = filterList;
+        }
+
+        @JsonSetter
+        @JsonProperty("filters")
+        public void setFilters(List<String> filters) {
+            if(filters == null) return;
+
+            this.filterList = StreamSupport.stream(filters)
+                            .parallel()
+                            .map(f -> {
+
+                                f = f.replace("\\\"", "'").replace("\\\\/", "/").replace("\\\"", "\"");
+
+                                try {
+
+                                    return Jackson.DEFAULT_MAPPER.readValue(f, Filter.class);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                                return null;
+                            }).collect(Collectors.toList());
+        }
+
 
         @Override
         public int describeContents() {
