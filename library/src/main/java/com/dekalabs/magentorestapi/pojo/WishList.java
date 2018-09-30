@@ -16,7 +16,10 @@ public class WishList extends RealmObject implements Parcelable {
     @PrimaryKey
     private Long id;
 
-    private RealmList<Product> products;
+    private RealmList<String> products;
+
+    @Ignore
+    private List<Product> productList;
 
     public Long getId() {
         return id;
@@ -26,12 +29,20 @@ public class WishList extends RealmObject implements Parcelable {
         this.id = id;
     }
 
-    public List<Product> getProducts() {
+    public List<String> getProducts() {
         return products != null ? products : new ArrayList<>();
     }
 
-    public void setProducts(RealmList<Product> products) {
+    public void setProducts(RealmList<String> products) {
         this.products = products;
+    }
+
+    public List<Product> getProductList() {
+        return productList;
+    }
+
+    public void setProductList(List<Product> productList) {
+        this.productList = productList;
     }
 
     @Override

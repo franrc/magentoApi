@@ -638,23 +638,44 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     }
 
 
-    public void addProductToWishList(Product product, ServiceCallback<Boolean> callback) {
-        new DatabaseUtils().addProductToWishList(product);
+    public void addProductToWishList(String productSku, ServiceCallback<Boolean> callback) {
+        new DatabaseUtils().addProductToWishList(productSku);
 
         callback.onResults(true);
         callback.onFinish();
     }
 
-    public void removeProductFromWishList(Product product, ServiceCallback<Boolean> callback) {
-        callback.onResults(new DatabaseUtils().removeProductFromWishList(product));
+    public void removeProductFromWishList(String productSku, ServiceCallback<Boolean> callback) {
+        callback.onResults(new DatabaseUtils().removeProductFromWishList(productSku));
         callback.onFinish();
     }
 
     public void getWishList(ServiceCallback<WishList> callback) {
         WishList wishList = new DatabaseUtils().getWishList();
 
-        callback.onResults(wishList);
-        callback.onFinish();
+        if(wishList == null || wishList.getProducts().size() == 0) {
+            callback.onResults(wishList);
+            callback.onFinish();
+        }
+        else {
+            StreamSupport.stream(wishList.getProducts()).parallel()
+                    .forEach(sku -> {
+                        getProductDetail(sku, new ServiceCallback<ProductView>() {
+                            @Override
+                            public void onResults(ProductView results) {
+                                wishList.getProductList().add(results.getMainProduct());  //Always main product cause they are always children
+                            }
+
+                            @Override
+                            public void onFinish() {
+                                if(wishList.getProducts().size() == wishList.getProductList().size()) {
+                                    callback.onResults(wishList);
+                                    callback.onFinish();
+                                }
+                            }
+                        });
+                    });
+        }
     }
 
     /** Search **/
