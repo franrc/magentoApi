@@ -38,7 +38,7 @@ public class WishList extends RealmObject implements Parcelable {
     }
 
     public List<Product> getProductList() {
-        return productList;
+        return productList != null ? productList : new ArrayList<>();
     }
 
     public void setProductList(List<Product> productList) {
