@@ -679,7 +679,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     }
 
     /** Search **/
-    public void searchProducts(String query, Pagination pagination, String order, List<Filter> filters, ServiceCallbackOnlyOnServiceResults<List<Product>> callback) {
+    public void searchProducts(String query, Pagination pagination, String order, List<Filter> filters, ServiceCallbackOnlyOnServiceResults<ProductSearchDTO> callback) {
 
         ServiceCallbackOnlyOnServiceResults<ProductSearchDTO> firstCallback = new ServiceCallbackOnlyOnServiceResults<ProductSearchDTO>() {
             @Override
@@ -691,7 +691,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
                 new DatabaseUtils().checkProductFavourite(results.getProducts());
 
-                callback.onResults(results.getProducts());
+                callback.onResults(results);
             }
 
 
