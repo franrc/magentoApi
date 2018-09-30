@@ -679,7 +679,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     }
 
     /** Search **/
-    public void searchProducts(String query, Pagination pagination, ServiceCallbackOnlyOnServiceResults<List<Product>> callback) {
+    public void searchProducts(String query, Pagination pagination, String order, List<Filter> filters, ServiceCallbackOnlyOnServiceResults<List<Product>> callback) {
 
         ServiceCallbackOnlyOnServiceResults<ProductSearchDTO> firstCallback = new ServiceCallbackOnlyOnServiceResults<ProductSearchDTO>() {
             @Override
@@ -706,9 +706,17 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             }
         };
 
-        Map<String, String> queryString = new FilterOptions()
-                .sort("position", FilterOptions.SORT_DIRECTION.ASC)
-                .showFields("products")
+        order = order != null ? order : "position";
+
+        FilterOptions filterOptions = new FilterOptions();
+
+        if(filters != null) {
+            filterOptions = filterOptions.applyClientFilter(filters).and();
+        }
+
+        Map<String, String> queryString = filterOptions
+                .sort(order, FilterOptions.SORT_DIRECTION.ASC)
+                .showFields("products,filters")
                 .addPagination(pagination)
                 .build();
 
