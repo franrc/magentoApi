@@ -15,6 +15,8 @@ public class ProductSearchDTO {
 
     private List<Product> products;
     private List<Filter> filterList;
+
+    @JsonProperty("category_size")
     private int categorySize;
 
     public List<Product> getProducts() {
