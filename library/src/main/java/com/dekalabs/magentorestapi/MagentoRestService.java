@@ -716,7 +716,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
         Map<String, String> queryString = filterOptions
                 .sort(order, FilterOptions.SORT_DIRECTION.ASC)
-                .showFields("products,filters")
+                .showFields("products,filters,category_size")
                 .addPagination(pagination)
                 .build();
 

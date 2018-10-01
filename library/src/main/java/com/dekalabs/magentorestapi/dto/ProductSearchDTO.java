@@ -15,6 +15,7 @@ public class ProductSearchDTO {
 
     private List<Product> products;
     private List<Filter> filterList;
+    private int categorySize;
 
     public List<Product> getProducts() {
         return products;
@@ -48,5 +49,13 @@ public class ProductSearchDTO {
 
     public List<Filter> getFilterList() {
         return filterList;
+    }
+
+    public int getCategorySize() {
+        return categorySize;
+    }
+
+    public void setCategorySize(int categorySize) {
+        this.categorySize = categorySize;
     }
 }
