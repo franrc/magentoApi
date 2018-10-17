@@ -1,5 +1,6 @@
 package com.dekalabs.magentorestapi;
 
+import com.dekalabs.magentorestapi.dto.Block;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
@@ -85,4 +86,7 @@ public interface MagentoService {
 
     @GET("search-views")
     Call<ProductSearchDTO> searchProducts(@QueryMap Map<String, String> params);
+
+    @GET("spa/cmsBlock/identifier")
+    Call<Block> getRenderBlock(@Query("identifier") String identifier);
 }

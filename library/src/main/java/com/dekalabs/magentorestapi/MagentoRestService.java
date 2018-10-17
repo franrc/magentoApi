@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
+import com.dekalabs.magentorestapi.dto.Block;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.Filter;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
@@ -723,5 +724,26 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         queryString.put("query", query);
 
         executeSimpleOnline(firstCallback, service.searchProducts(queryString));
+    }
+
+    public void renderBlock(String blockIdentifier, ServiceCallback<String> callback) {
+
+        ServiceCallback<Block> managerCallback = new ServiceCallback<Block>() {
+            @Override
+            public void onResults(Block results) {
+                if (results == null) return;
+
+                callback.onResults(results.getContent());
+                callback.onFinish();
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+                callback.onFinish();
+            }
+        };
+
+        executeSimpleOnline(managerCallback, service.getRenderBlock(blockIdentifier));
     }
 }
