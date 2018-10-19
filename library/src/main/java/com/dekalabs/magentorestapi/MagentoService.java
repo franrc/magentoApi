@@ -26,6 +26,7 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
+import retrofit2.http.Url;
 
 /**
  * Created by fran on 9/7/18.
@@ -89,4 +90,7 @@ public interface MagentoService {
 
     @GET("spa/cmsBlock/identifier")
     Call<Block> getRenderBlock(@Query("identifier") String identifier);
+
+    @GET
+    Call<ResponseBody> executeUrl(@Url String url);
 }

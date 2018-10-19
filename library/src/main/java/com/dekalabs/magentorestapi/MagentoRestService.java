@@ -746,4 +746,8 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
         executeSimpleOnline(managerCallback, service.getRenderBlock(blockIdentifier));
     }
+
+    public void executeUrl(String url, ServiceCallback<ResponseBody> callback) {
+        executeSimpleOnline(callback, service.executeUrl(url));
+    }
 }
