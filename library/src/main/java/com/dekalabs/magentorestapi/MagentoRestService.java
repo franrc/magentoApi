@@ -726,27 +726,8 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         executeSimpleOnline(firstCallback, service.searchProducts(queryString));
     }
 
-    public void searchProductByBarcode(String barcode, ServiceCallbackOnlyOnServiceResults<ProductView> callback) {
-
-        ServiceCallbackOnlyOnServiceResults<Product> firstCallback = new ServiceCallbackOnlyOnServiceResults<Product>() {
-            @Override
-            public void onResults(Product results) {
-                getProductDetail(results.getSku(), callback);
-            }
-
-
-            @Override
-            public void onError(int errorCode, String message) {
-                callback.onError(errorCode, message);
-            }
-
-            @Override
-            public void onFinish() {
-                callback.onFinish();
-            }
-        };
-
-        executeSimpleOnline(firstCallback, service.searchProductByBarcode(barcode));
+    public void searchProductByBarcode(String barcode, ServiceCallbackOnlyOnServiceResults<Product> callback) {
+        executeSimpleOnline(callback, service.searchProductByBarcode(barcode));
     }
 
     public void renderBlock(String blockIdentifier, ServiceCallback<String> callback) {
