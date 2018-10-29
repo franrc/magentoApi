@@ -88,6 +88,9 @@ public interface MagentoService {
     @GET("search-views")
     Call<ProductSearchDTO> searchProducts(@QueryMap Map<String, String> params);
 
+    @GET("spa/product-views/wjh_barcode/lookup/{barcode}")
+    Call<Product> searchProductByBarcode(@Path("barcode") String barcode);
+
     @GET("spa/cmsBlock/identifier")
     Call<Block> getRenderBlock(@Query("identifier") String identifier);
 
