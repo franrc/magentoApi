@@ -884,6 +884,11 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         executeSimpleOnline(firstCallback, service.postBillingAddress(cartIdentifier, address));
     }
 
+    public void getAddresses(ServiceCallback<List<Address>> callback) {
+        callback.onResults(new MagentoDatabaseUtils().getAddresses());
+        callback.onFinish();
+    }
+
     public void executeUrl(String url, ServiceCallback<ResponseBody> callback) {
         executeSimpleOnline(callback, service.executeUrl(url));
     }

@@ -7,9 +7,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class CartItem implements Parcelable {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class CartItem extends RealmObject implements Parcelable {
+
+    @PrimaryKey
     @JsonProperty("item_id")
     public Integer itemId;
 
