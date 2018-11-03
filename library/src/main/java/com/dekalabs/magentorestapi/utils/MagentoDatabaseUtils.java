@@ -1,11 +1,13 @@
 package com.dekalabs.magentorestapi.utils;
 
 import com.dekalabs.magentorestapi.dto.ProductView;
+import com.dekalabs.magentorestapi.pojo.Address;
 import com.dekalabs.magentorestapi.pojo.AttributeOption;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Product;
 import com.dekalabs.magentorestapi.pojo.WishList;
+import com.dekalabs.magentorestapi.pojo.cart.ShoppingCart;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +23,7 @@ import java8.util.stream.StreamSupport;
  * Created by fran on 25/07/2018.
  */
 
-public class DatabaseUtils {
+public class MagentoDatabaseUtils {
 
     private static RealmConfiguration configuration;
 
@@ -29,7 +31,7 @@ public class DatabaseUtils {
         if(configuration == null) {
             configuration = new RealmConfiguration.Builder()
                     .schemaVersion(0)
-                    .addModule(new DatabaseUtils.MagentoModule())
+                    .addModule(new MagentoDatabaseUtils.MagentoModule())
                     .name("magento.realm")
                     .deleteRealmIfMigrationNeeded()
                     .build();
@@ -279,6 +281,69 @@ public class DatabaseUtils {
                 .forEach(p -> p.setFavourite(unmanagedWishList.getProducts().contains(p.getSku())));
 
         realm.close();
+    }
+
+    /** CART ***/
+    public ShoppingCart retrieveCart(Long idCart) {
+        if(idCart == null) return null;
+
+        Realm realm = getRealmInstance();
+        ShoppingCart cart = realm.where(ShoppingCart.class).equalTo("id", idCart).findFirst();
+
+        if(cart == null) {
+            realm.close();
+            return null;
+        }
+
+        return copyFromRealm(realm, cart, true);
+    }
+
+    public void saveOrUpdateShoppingCart(ShoppingCart cart) {
+        if(cart == null) return;
+
+        Realm realm = getRealmInstance();
+        realm.beginTransaction();
+
+        //If exists on database, we only need to update it
+        if(realm.where(ShoppingCart.class).equalTo("id", cart.getId()).findFirst() != null) {
+            realm.copyToRealmOrUpdate(cart);
+            realm.commitTransaction();
+            realm.close();
+
+            return;
+        }
+
+        //Otherwise, we must delete all possible pre created carts before inserting the new one
+        RealmResults<ShoppingCart> oldCarts = realm.where(ShoppingCart.class).findAll();
+        oldCarts.deleteAllFromRealm();
+
+        realm.copyToRealm(cart);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    public void saveAddress(Address address) {
+        if(address == null) return;
+
+        Realm realm = getRealmInstance();
+        realm.beginTransaction();
+
+        realm.copyToRealmOrUpdate(address);
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    public List<Address> getAddresses() {
+        Realm realm = getRealmInstance();
+
+        List<Address> addresses = realm.where(Address.class).findAll();
+
+        if(addresses != null)
+            addresses = realm.copyFromRealm(addresses);
+
+        realm.close();
+        return addresses;
     }
 
     private <DATA extends RealmObject> DATA copyFromRealm(Realm realm, DATA result, boolean closeRealm) {

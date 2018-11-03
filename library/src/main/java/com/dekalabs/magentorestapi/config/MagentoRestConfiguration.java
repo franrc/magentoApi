@@ -8,14 +8,12 @@ import com.dekalabs.magentorestapi.ServiceCallbackOnlyOnServiceResults;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.handler.FinishHandler;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
-import com.dekalabs.magentorestapi.utils.DatabaseUtils;
 import com.dekalabs.magentorestapi.utils.PreferencesCacheManager;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
 
 public class MagentoRestConfiguration {
 

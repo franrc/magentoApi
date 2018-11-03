@@ -7,11 +7,16 @@ import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
+import com.dekalabs.magentorestapi.pojo.Address;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
+import com.dekalabs.magentorestapi.pojo.cart.CartItem;
+import com.dekalabs.magentorestapi.pojo.cart.PaymentMethod;
+import com.dekalabs.magentorestapi.pojo.cart.ShippingMethod;
+import com.dekalabs.magentorestapi.pojo.cart.ShoppingCart;
 import com.dekalabs.magentorestapi.pojo.review.ReviewItem;
 
 import java.util.List;
@@ -20,6 +25,8 @@ import java.util.Map;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -94,6 +101,36 @@ public interface MagentoService {
     @GET("spa/cmsBlock/identifier")
     Call<Block> getRenderBlock(@Query("identifier") String identifier);
 
+
+    /*** Checkout ***/
+    /****** GUEST ****/
+
+    @POST("guest-carts")
+    Call<String> createGuestCart();
+
+    @GET("guest-carts/{cartIdentifier}")
+    Call<ShoppingCart> getShoppingCartByIdentifier(@Path("cartIdentifier") String id);
+
+    @POST("guest-carts/{cartIdentifier}/estimate-shipping-methods")
+    Call<List<ShippingMethod>> getShippingMethods(@Path("cartIdentifier") String id, @Body Address address);
+
+    @GET("guest-carts/{cartIdentifier}/payment-methods")
+    Call<List<PaymentMethod>> getPaymentMethods(@Path("cartIdentifier") String cartId);
+
     @GET
     Call<ResponseBody> executeUrl(@Url String url);
+
+    @POST("guest-carts/{cartIdentifier}/items")
+    Call<CartItem> addItemToCart(@Path("cartIdentifier") String cartId, @Body CartItem cartItem);
+
+    //TODO replace ResponseBody by definitive response
+    @PUT("guest-carts/{cartIdentifier}/coupons/{coupon}")
+    Call<ResponseBody> applyCoupon(@Path("cartIdentifier") String cartId, @Path("coupon") String coupon);
+
+    @POST("customers/isEmailAvailable")
+    @FormUrlEncoded
+    Call<Boolean> isEmailAvailable(@Field("customerEmail") String email);
+
+    @POST("guest-carts/{cartIdentifier}/billing-address")
+    Call<String> postBillingAddress(@Path("cartIdentifier") String cartId, @Body Address billingAddress);
 }

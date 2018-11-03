@@ -2,11 +2,10 @@ package com.dekalabs.magentorestapi.pojo;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.dekalabs.magentorestapi.Jackson;
 import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
-import com.dekalabs.magentorestapi.utils.DatabaseUtils;
+import com.dekalabs.magentorestapi.utils.MagentoDatabaseUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -275,7 +274,7 @@ public class Product extends RealmObject implements Parcelable {
 
             Object value  = attr.get("value");
 
-            DatabaseUtils database = new DatabaseUtils();
+            MagentoDatabaseUtils database = new MagentoDatabaseUtils();
 
             if(value instanceof String) {
                 ProductAttributes productAttributes = new ProductAttributes();

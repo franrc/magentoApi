@@ -5,49 +5,47 @@ import android.os.Parcelable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class Address extends RealmObject implements Parcelable {
 
+    @PrimaryKey
     private Long id;
 
     @JsonProperty("customer_id")
     private Long customerId;
 
-    @JsonProperty("region_code")
-    private String regionCode;
-
-    private String region;
-
-    @JsonProperty("region_id")
-    private Long regionId;
-
-    @JsonProperty("country_id")
-    private String countryId;
-    private RealmList<String> street;
     private String company;
+
+    private String regionCode;
+    private String region;
+    private Long regionId;
+    private String countryId;
+
+    private String streetName;
+    private String addressName;
+
     private String telephone;
     private String fax;
     private String postcode;
     private String city;
     private String firstname;
     private String lastname;
+
+    private String secondaryPhone;
+
     private String middlename;
     private String prefix;
     private String suffix;
 
     @JsonProperty("vat_id")
     private String vatId;
-
-    @JsonProperty("defaultShipping")
-    private boolean defaultShipping;
-
-    @JsonProperty("default_billing")
-    private boolean defaultBilling;
-
 
     public Long getId() {
         return id;
@@ -95,14 +93,6 @@ public class Address extends RealmObject implements Parcelable {
 
     public void setCountryId(String countryId) {
         this.countryId = countryId;
-    }
-
-    public RealmList<String> getStreet() {
-        return street;
-    }
-
-    public void setStreet(RealmList<String> street) {
-        this.street = street;
     }
 
     public String getCompany() {
@@ -193,22 +183,6 @@ public class Address extends RealmObject implements Parcelable {
         this.vatId = vatId;
     }
 
-    public boolean isDefaultShipping() {
-        return defaultShipping;
-    }
-
-    public void setDefaultShipping(boolean defaultShipping) {
-        this.defaultShipping = defaultShipping;
-    }
-
-    public boolean isDefaultBilling() {
-        return defaultBilling;
-    }
-
-    public void setDefaultBilling(boolean defaultBilling) {
-        this.defaultBilling = defaultBilling;
-    }
-
     @SuppressWarnings("unchecked")
     @JsonProperty("region")
     private void unpackRegion(Map<String,Object> region) {
@@ -234,6 +208,43 @@ public class Address extends RealmObject implements Parcelable {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    @JsonProperty("customAttributes")
+    private void unpackCustomAttributes(Map<String,Object> attrs) {
+
+        if(attrs != null) {
+            Object object = attrs.get("wjh_phone_secondary");
+
+            if(object != null) {
+                this.secondaryPhone = object.toString();
+            }
+        }
+    }
+
+    @JsonProperty("customAttributes")
+    private Map<String, Object> getCustomAttributes() {
+        Map<String,Object> attrs = new HashMap<>();
+        attrs.put("wjh_phone_secondary", this.secondaryPhone);
+
+        return attrs;
+    }
+
+
+    @JsonProperty("street")
+    public List<String> getStreet() {
+        List<String> street = new ArrayList<>();
+        street.add(this.streetName);
+        street.add(this.addressName);
+
+        return street;
+    }
+
+    @JsonProperty("street")
+    public void setStreet(List<String> street) {
+        this.streetName = street.get(0);
+        this.addressName = street.size() > 1 ? street.get(1) : "";
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -243,24 +254,24 @@ public class Address extends RealmObject implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(this.id);
         dest.writeValue(this.customerId);
+        dest.writeString(this.company);
         dest.writeString(this.regionCode);
         dest.writeString(this.region);
         dest.writeValue(this.regionId);
         dest.writeString(this.countryId);
-        dest.writeStringList(this.street);
-        dest.writeString(this.company);
+        dest.writeString(this.streetName);
+        dest.writeString(this.addressName);
         dest.writeString(this.telephone);
         dest.writeString(this.fax);
         dest.writeString(this.postcode);
         dest.writeString(this.city);
         dest.writeString(this.firstname);
         dest.writeString(this.lastname);
+        dest.writeString(this.secondaryPhone);
         dest.writeString(this.middlename);
         dest.writeString(this.prefix);
         dest.writeString(this.suffix);
         dest.writeString(this.vatId);
-        dest.writeByte(this.defaultShipping ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.defaultBilling ? (byte) 1 : (byte) 0);
     }
 
     public Address() {
@@ -269,28 +280,27 @@ public class Address extends RealmObject implements Parcelable {
     protected Address(Parcel in) {
         this.id = (Long) in.readValue(Long.class.getClassLoader());
         this.customerId = (Long) in.readValue(Long.class.getClassLoader());
+        this.company = in.readString();
         this.regionCode = in.readString();
         this.region = in.readString();
         this.regionId = (Long) in.readValue(Long.class.getClassLoader());
         this.countryId = in.readString();
-        this.street = new RealmList<>();
-        this.street.addAll(in.createStringArrayList());
-        this.company = in.readString();
+        this.streetName = in.readString();
+        this.addressName = in.readString();
         this.telephone = in.readString();
         this.fax = in.readString();
         this.postcode = in.readString();
         this.city = in.readString();
         this.firstname = in.readString();
         this.lastname = in.readString();
+        this.secondaryPhone = in.readString();
         this.middlename = in.readString();
         this.prefix = in.readString();
         this.suffix = in.readString();
         this.vatId = in.readString();
-        this.defaultShipping = in.readByte() != 0;
-        this.defaultBilling = in.readByte() != 0;
     }
 
-    public static final Parcelable.Creator<Address> CREATOR = new Parcelable.Creator<Address>() {
+    public static final Creator<Address> CREATOR = new Creator<Address>() {
         @Override
         public Address createFromParcel(Parcel source) {
             return new Address(source);

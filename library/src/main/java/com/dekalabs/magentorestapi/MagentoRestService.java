@@ -16,14 +16,20 @@ import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ProductView;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
+import com.dekalabs.magentorestapi.pojo.Address;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
 import com.dekalabs.magentorestapi.pojo.WishList;
+import com.dekalabs.magentorestapi.pojo.cart.CartItem;
+import com.dekalabs.magentorestapi.pojo.cart.PaymentMethod;
+import com.dekalabs.magentorestapi.pojo.cart.ShippingMethod;
+import com.dekalabs.magentorestapi.pojo.cart.ShoppingCart;
 import com.dekalabs.magentorestapi.pojo.review.ReviewItem;
-import com.dekalabs.magentorestapi.utils.DatabaseUtils;
+import com.dekalabs.magentorestapi.utils.FinalLong;
+import com.dekalabs.magentorestapi.utils.MagentoDatabaseUtils;
 import com.dekalabs.magentorestapi.utils.FilterOptions;
 import com.dekalabs.magentorestapi.utils.PreferencesCacheManager;
 
@@ -31,6 +37,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java8.util.stream.StreamSupport;
 import okhttp3.Interceptor;
@@ -133,7 +142,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                     if(results == null) return;
 
                     if(results.getError() == null) {
-                        DatabaseUtils database = new DatabaseUtils();
+                        MagentoDatabaseUtils database = new MagentoDatabaseUtils();
 
                         database.saveCategories(categoryRoot, results.getItems());
 
@@ -165,7 +174,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
         }
         else {
-            callback.onResults(new DatabaseUtils().getCategoriesByParent(categoryRoot));
+            callback.onResults(new MagentoDatabaseUtils().getCategoriesByParent(categoryRoot));
             callback.onFinish();
         }
     }
@@ -241,7 +250,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 //                        DatabaseUtils.getInstance().saveProducts(categoryID, category.getProductList());
 //                    }
 
-                    new DatabaseUtils().checkProductFavourite(category.getProductList());
+                    new MagentoDatabaseUtils().checkProductFavourite(category.getProductList());
 
                     callback.onResults(category);
                 }
@@ -284,7 +293,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                 if(results == null) return;
 
                 if(results.getError() == null) {
-                    DatabaseUtils database = new DatabaseUtils();
+                    MagentoDatabaseUtils database = new MagentoDatabaseUtils();
                     database.saveCustomAttributes(results.getItems());
 
                     MagentoListResponse<CustomAttribute> magentoList = new MagentoListResponse<>();
@@ -363,7 +372,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
                     if(Product.TYPE_SIMPLE.equals(product.getTypeId())) {
                         //Check if its favourite
-                        new DatabaseUtils().checkProductFavourite(product);
+                        new MagentoDatabaseUtils().checkProductFavourite(product);
 
                         getProductViewFinalPrice(new ProductView(product), callback);
                     }
@@ -508,7 +517,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                             productView.setChildren(pricedProducts);
 
                             //Check if it's needed to mark as favourite
-                            new Handler(Looper.getMainLooper()).post(() -> new DatabaseUtils().markProductViewAsFavourite(productView));
+                            new Handler(Looper.getMainLooper()).post(() -> new MagentoDatabaseUtils().markProductViewAsFavourite(productView));
 
                             //Let's go for the attributes!
                             getConfigurableProductAttributes(productView, callback);
@@ -640,19 +649,19 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
 
     public void addProductToWishList(String productSku, ServiceCallback<Boolean> callback) {
-        new DatabaseUtils().addProductToWishList(productSku);
+        new MagentoDatabaseUtils().addProductToWishList(productSku);
 
         callback.onResults(true);
         callback.onFinish();
     }
 
     public void removeProductFromWishList(String productSku, ServiceCallback<Boolean> callback) {
-        callback.onResults(new DatabaseUtils().removeProductFromWishList(productSku));
+        callback.onResults(new MagentoDatabaseUtils().removeProductFromWishList(productSku));
         callback.onFinish();
     }
 
     public void getWishList(ServiceCallback<WishList> callback) {
-        WishList wishList = new DatabaseUtils().getWishList();
+        WishList wishList = new MagentoDatabaseUtils().getWishList();
 
         if(wishList == null || wishList.getProducts().size() == 0) {
             callback.onResults(wishList);
@@ -690,7 +699,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 //                        DatabaseUtils.getInstance().saveProducts(categoryID, category.getProductList());
 //                    }
 
-                new DatabaseUtils().checkProductFavourite(results.getProducts());
+                new MagentoDatabaseUtils().checkProductFavourite(results.getProducts());
 
                 callback.onResults(results);
             }
@@ -749,6 +758,130 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         };
 
         executeSimpleOnline(managerCallback, service.getRenderBlock(blockIdentifier));
+    }
+
+
+    /**** CHECKOUT *****/
+    /**** GUEST *****/
+
+    public void getGuestCart(@Nullable Long cartId, ServiceCallbackOnlyOnServiceResults<ShoppingCart> callback) {
+        if(cartId == null) {
+            createGuestCart(new ServiceCallbackOnlyOnServiceResults<String>() {
+                @Override
+                public void onResults(String results) {
+                    findGuestCartByIds(cartId, results, callback);
+                }
+
+                @Override
+                public void onError(int errorCode, String message) {
+                    callback.onError(errorCode, message);
+                }
+            });
+        }
+        else {
+            ShoppingCart currentCart = new MagentoDatabaseUtils().retrieveCart(cartId);
+            if(currentCart == null) {
+                getGuestCart(null, callback);
+            }
+            else {
+                findGuestCartByIds(currentCart.getId(), currentCart.getCartIdentifier(), callback);
+            }
+        }
+    }
+
+    private void createGuestCart(ServiceCallbackOnlyOnServiceResults<String> callback) {
+        executeSimpleOnline(callback, service.createGuestCart());
+    }
+
+    private void findGuestCartByIds(Long cartId, @Nonnull String cartIdentifier, ServiceCallbackOnlyOnServiceResults<ShoppingCart> callback) {
+
+        ServiceCallback<ShoppingCart> finderCallback = new ServiceCallback<ShoppingCart>() {
+            @Override
+            public void onResults(ShoppingCart results) {
+                if(results != null) {
+                    new MagentoDatabaseUtils().saveOrUpdateShoppingCart(results);
+                }
+
+                callback.onResults(results);
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+            }
+
+            @Override
+            public void onFinish() {
+                callback.onFinish();
+            }
+        };
+
+        executeSimpleOnline(finderCallback, service.getShoppingCartByIdentifier(cartIdentifier));
+    }
+
+    public void estimateShippingMethods(Address address, String cartIdentifier, ServiceCallback<List<ShippingMethod>> callback) {
+        executeSimpleOnline(callback, service.getShippingMethods(cartIdentifier, address));
+    }
+
+    public void getPaymentMethods(String cartIdentifier, ServiceCallback<List<PaymentMethod>> callback) {
+        executeSimpleOnline(callback, service.getPaymentMethods(    cartIdentifier));
+    }
+
+    public void addItemToCart(Long cartId, String cartIdentifier, CartItem item, ServiceCallback<CartItem> callback) {
+        ServiceCallback<CartItem> firstCallback = new ServiceCallback<CartItem>() {
+            @Override
+            public void onResults(CartItem results) {
+                if(results != null) {
+                    MagentoDatabaseUtils dbUtils = new MagentoDatabaseUtils();
+                    ShoppingCart cart = dbUtils.retrieveCart(cartId);
+
+                    cart.getItems().add(item);
+
+                    dbUtils.saveOrUpdateShoppingCart(cart);
+                }
+
+                callback.onResults(results);
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+            }
+
+            @Override
+            public void onFinish() {
+                callback.onFinish();
+            }
+        };
+
+        executeSimpleOnline(firstCallback, service.addItemToCart(cartIdentifier, item));
+    }
+
+    public void checkIsEmailAvailable(String email, ServiceCallback<Boolean> callback) {
+        executeSimpleOnline(callback, service.isEmailAvailable(email));
+    }
+
+    private void sentBillingAddress(String cartIdentifier, Address address, ServiceCallback callback) {
+        ServiceCallback<String> firstCallback = new ServiceCallback<String>() {
+            @Override
+            public void onResults(String results) {
+                new MagentoDatabaseUtils().saveAddress(address);
+
+                callback.onResults(results);
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+            }
+
+            @Override
+            public void onFinish() {
+                callback.onFinish();
+            }
+        };
+
+        executeSimpleOnline(firstCallback, service.postBillingAddress(cartIdentifier, address));
     }
 
     public void executeUrl(String url, ServiceCallback<ResponseBody> callback) {
