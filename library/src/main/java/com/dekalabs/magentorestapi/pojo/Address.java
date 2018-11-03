@@ -311,4 +311,39 @@ public class Address extends RealmObject implements Parcelable {
             return new Address[size];
         }
     };
+
+    public String getStreetName() {
+        return streetName;
+    }
+
+    public void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
+
+    public String getAddressName() {
+        return addressName;
+    }
+
+    public void setAddressName(String addressName) {
+        this.addressName = addressName;
+    }
+
+    public String getSecondaryPhone() {
+        return secondaryPhone;
+    }
+
+    public void setSecondaryPhone(String secondaryPhone) {
+        this.secondaryPhone = secondaryPhone;
+    }
+
+    public String getPostalCodeCity() {
+        String postalCodeCity = postcode != null ? postcode : "";
+
+        if(postalCodeCity.length() > 0)
+            postalCodeCity += " ";
+
+        postalCodeCity += city;
+
+        return postalCodeCity;
+    }
 }
