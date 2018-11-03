@@ -764,12 +764,14 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     /**** CHECKOUT *****/
     /**** GUEST *****/
 
-    public void getGuestCart(@Nullable Long cartId, ServiceCallbackOnlyOnServiceResults<ShoppingCart> callback) {
-        if(cartId == null) {
+    public void getGuestCart(ServiceCallbackOnlyOnServiceResults<ShoppingCart> callback) {
+        ShoppingCart currentCart = new MagentoDatabaseUtils().retrieveCart();
+
+        if(currentCart == null) {
             createGuestCart(new ServiceCallbackOnlyOnServiceResults<String>() {
                 @Override
                 public void onResults(String results) {
-                    findGuestCartByIds(cartId, results, callback);
+                    findGuestCartByIds(results, callback);
                 }
 
                 @Override
@@ -779,13 +781,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             });
         }
         else {
-            ShoppingCart currentCart = new MagentoDatabaseUtils().retrieveCart(cartId);
-            if(currentCart == null) {
-                getGuestCart(null, callback);
-            }
-            else {
-                findGuestCartByIds(currentCart.getId(), currentCart.getCartIdentifier(), callback);
-            }
+            findGuestCartByIds(currentCart.getCartIdentifier(), callback);
         }
     }
 
@@ -793,7 +789,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         executeSimpleOnline(callback, service.createGuestCart());
     }
 
-    private void findGuestCartByIds(Long cartId, @Nonnull String cartIdentifier, ServiceCallbackOnlyOnServiceResults<ShoppingCart> callback) {
+    private void findGuestCartByIds(@Nonnull String cartIdentifier, ServiceCallbackOnlyOnServiceResults<ShoppingCart> callback) {
 
         ServiceCallback<ShoppingCart> finderCallback = new ServiceCallback<ShoppingCart>() {
             @Override
@@ -819,21 +815,32 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         executeSimpleOnline(finderCallback, service.getShoppingCartByIdentifier(cartIdentifier));
     }
 
-    public void estimateShippingMethods(Address address, String cartIdentifier, ServiceCallback<List<ShippingMethod>> callback) {
-        executeSimpleOnline(callback, service.getShippingMethods(cartIdentifier, address));
+    public void estimateShippingMethods(Address address, ServiceCallback<List<ShippingMethod>> callback) {
+        ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
+        if(cart == null) return;
+
+        executeSimpleOnline(callback, service.getShippingMethods(cart.getCartIdentifier(), address));
     }
 
-    public void getPaymentMethods(String cartIdentifier, ServiceCallback<List<PaymentMethod>> callback) {
-        executeSimpleOnline(callback, service.getPaymentMethods(    cartIdentifier));
+    public void getPaymentMethods(ServiceCallback<List<PaymentMethod>> callback) {
+        ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
+        if(cart == null) return;
+
+        executeSimpleOnline(callback, service.getPaymentMethods(cart.getCartIdentifier()));
     }
 
-    public void addItemToCart(Long cartId, String cartIdentifier, CartItem item, ServiceCallback<CartItem> callback) {
+    public void addItemToCart(CartItem item, ServiceCallback<CartItem> callback) {
+        ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
+        if(cart == null) return;
+
+        item.setQuoteId(cart.getCartIdentifier());
+
         ServiceCallback<CartItem> firstCallback = new ServiceCallback<CartItem>() {
             @Override
             public void onResults(CartItem results) {
                 if(results != null) {
                     MagentoDatabaseUtils dbUtils = new MagentoDatabaseUtils();
-                    ShoppingCart cart = dbUtils.retrieveCart(cartId);
+                    ShoppingCart cart = dbUtils.retrieveCart();
 
                     cart.getItems().add(item);
 
@@ -854,14 +861,17 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             }
         };
 
-        executeSimpleOnline(firstCallback, service.addItemToCart(cartIdentifier, item));
+        executeSimpleOnline(firstCallback, service.addItemToCart(cart.getCartIdentifier(), item));
     }
 
     public void checkIsEmailAvailable(String email, ServiceCallback<Boolean> callback) {
         executeSimpleOnline(callback, service.isEmailAvailable(email));
     }
 
-    private void sentBillingAddress(String cartIdentifier, Address address, ServiceCallback callback) {
+    public void sendBillingAddress(Address address, ServiceCallback callback) {
+        ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
+        if(cart == null) return;
+
         ServiceCallback<String> firstCallback = new ServiceCallback<String>() {
             @Override
             public void onResults(String results) {
@@ -881,12 +891,97 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             }
         };
 
-        executeSimpleOnline(firstCallback, service.postBillingAddress(cartIdentifier, address));
+        executeSimpleOnline(firstCallback, service.postBillingAddress(cart.getCartIdentifier(), address));
     }
 
     public void getAddresses(ServiceCallback<List<Address>> callback) {
         callback.onResults(new MagentoDatabaseUtils().getAddresses());
         callback.onFinish();
+    }
+
+    public void changeCartItemQuantity(Long cartItemId, int quantity, ServiceCallback<CartItem> callback) {
+        ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
+        if(cart == null) return;
+
+        CartItem item = new CartItem();
+        item.setQuoteId(cart.getCartIdentifier());
+        item.setItemId(cartItemId);
+        item.setQty(quantity);
+
+        ServiceCallback<CartItem> firstCallback = new ServiceCallback<CartItem>() {
+            @Override
+            public void onResults(CartItem results) {
+                if(results != null) {
+                    MagentoDatabaseUtils dbUtils = new MagentoDatabaseUtils();
+                    ShoppingCart cart = dbUtils.retrieveCart();
+
+                    int index = -1;
+                    if((index = cart.getItems().indexOf(item)) > -1) {
+                        cart.getItems().remove(index);
+                        cart.getItems().add(index, item);
+                    }
+                    else {
+                        cart.getItems().add(item);
+                    }
+
+                    dbUtils.saveOrUpdateShoppingCart(cart);
+                }
+
+                callback.onResults(results);
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+            }
+
+            @Override
+            public void onFinish() {
+                callback.onFinish();
+            }
+        };
+
+        executeSimpleOnline(firstCallback, service.updateCartItem(cart.getCartIdentifier(), cartItemId, item));
+    }
+
+    public void deleteCartItem(Long cartItemId, ServiceCallback<Boolean> callback) {
+        ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
+        if(cart == null) return;
+
+        ServiceCallback<Boolean> firstCallback = new ServiceCallback<Boolean>() {
+            @Override
+            public void onResults(Boolean results) {
+                if(results != null && results) {
+                    MagentoDatabaseUtils dbUtils = new MagentoDatabaseUtils();
+                    ShoppingCart cart = dbUtils.retrieveCart();
+
+                    int index;
+
+                    CartItem dbCartItem = new CartItem();
+                    dbCartItem.setItemId(cartItemId);
+
+                    if((index = cart.getItems().indexOf(dbCartItem)) > -1) {
+                        cart.getItems().remove(index);
+                    }
+
+                    dbUtils.saveOrUpdateShoppingCart(cart);
+                }
+
+                callback.onResults(results);
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+            }
+
+            @Override
+            public void onFinish() {
+                callback.onFinish();
+            }
+        };
+
+        executeSimpleOnline(callback, service.deleteCartItem(cart.getCartIdentifier(), cartItemId));
     }
 
     public void executeUrl(String url, ServiceCallback<ResponseBody> callback) {

@@ -284,11 +284,9 @@ public class MagentoDatabaseUtils {
     }
 
     /** CART ***/
-    public ShoppingCart retrieveCart(Long idCart) {
-        if(idCart == null) return null;
-
+    public ShoppingCart retrieveCart() {
         Realm realm = getRealmInstance();
-        ShoppingCart cart = realm.where(ShoppingCart.class).equalTo("id", idCart).findFirst();
+        ShoppingCart cart = realm.where(ShoppingCart.class).findFirst();
 
         if(cart == null) {
             realm.close();

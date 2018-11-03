@@ -15,7 +15,7 @@ public class CartItem extends RealmObject implements Parcelable {
 
     @PrimaryKey
     @JsonProperty("item_id")
-    public Integer itemId;
+    public Long itemId;
 
     public String sku;
 
@@ -31,11 +31,11 @@ public class CartItem extends RealmObject implements Parcelable {
     public String quoteId;
 
 
-    public Integer getItemId() {
+    public Long getItemId() {
         return itemId;
     }
 
-    public void setItemId(Integer itemId) {
+    public void setItemId(Long itemId) {
         this.itemId = itemId;
     }
 
@@ -122,7 +122,7 @@ public class CartItem extends RealmObject implements Parcelable {
     }
 
     protected CartItem(Parcel in) {
-        this.itemId = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.itemId = (Long) in.readValue(Long.class.getClassLoader());
         this.sku = in.readString();
         this.qty = (Integer) in.readValue(Integer.class.getClassLoader());
         this.name = in.readString();

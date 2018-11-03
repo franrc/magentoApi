@@ -25,6 +25,7 @@ import java.util.Map;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -133,4 +134,10 @@ public interface MagentoService {
 
     @POST("guest-carts/{cartIdentifier}/billing-address")
     Call<String> postBillingAddress(@Path("cartIdentifier") String cartId, @Body Address billingAddress);
+
+    @PUT("guest-carts/{cartIdentifier}/items/{itemId}")
+    Call<CartItem> updateCartItem(@Path("cartIdentifier") String cartId, @Path("itemId") Long itemId, @Body CartItem dto);
+
+    @DELETE("guest-carts/{cartIdentifier}/items/{itemId}")
+    Call<Boolean> deleteCartItem(@Path("cartIdentifier") String cartId, @Path("itemId") Long itemId);
 }
