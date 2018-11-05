@@ -30,9 +30,9 @@ import com.dekalabs.magentorestapi.pojo.cart.PaymentMethod;
 import com.dekalabs.magentorestapi.pojo.cart.ShippingMethod;
 import com.dekalabs.magentorestapi.pojo.cart.ShoppingCart;
 import com.dekalabs.magentorestapi.pojo.review.ReviewItem;
+import com.dekalabs.magentorestapi.utils.FilterOptions;
 import com.dekalabs.magentorestapi.utils.FinalInteger;
 import com.dekalabs.magentorestapi.utils.MagentoDatabaseUtils;
-import com.dekalabs.magentorestapi.utils.FilterOptions;
 import com.dekalabs.magentorestapi.utils.Pair;
 import com.dekalabs.magentorestapi.utils.PreferencesCacheManager;
 
@@ -804,6 +804,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             @Override
             public void onResults(ShoppingCart results) {
                 if(results != null) {
+                    results.setCartIdentifier(cartIdentifier);
                     pairCart.setFirst(results);
                 }
             }
@@ -862,7 +863,18 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
     public void addItemToCart(CartItem item, ServiceCallback<CartItem> callback) {
         ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
-        if(cart == null) return;
+        if(cart == null) {
+
+            //If does not exist, we need to create it  before
+            getGuestCart(new ServiceCallbackOnlyOnServiceResults<ShoppingCart>() {
+                @Override
+                public void onResults(ShoppingCart results) {
+                    addItemToCart(item, callback);
+                }
+            });
+
+            return;
+        }
 
         item.setQuoteId(cart.getCartIdentifier());
 
@@ -932,8 +944,18 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
     public void changeCartItemQuantity(Long cartItemId, int quantity, ServiceCallback<CartItem> callback) {
         ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
-        if(cart == null) return;
+        if(cart == null) {
 
+            //If does not exist, we need to create it  before
+            getGuestCart(new ServiceCallbackOnlyOnServiceResults<ShoppingCart>() {
+                @Override
+                public void onResults(ShoppingCart results) {
+                    changeCartItemQuantity(cartItemId, quantity, callback);
+                }
+            });
+
+            return;
+        }
         CartItem item = new CartItem();
         item.setQuoteId(cart.getCartIdentifier());
         item.setItemId(cartItemId);
@@ -1012,7 +1034,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             }
         };
 
-        executeSimpleOnline(callback, service.deleteGuestCartItem(cart.getCartIdentifier(), cartItemId));
+        executeSimpleOnline(firstCallback, service.deleteGuestCartItem(cart.getCartIdentifier(), cartItemId));
     }
 
     public void executeUrl(String url, ServiceCallback<ResponseBody> callback) {
