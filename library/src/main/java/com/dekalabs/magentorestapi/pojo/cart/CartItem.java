@@ -3,6 +3,7 @@ package com.dekalabs.magentorestapi.pojo.cart;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -29,6 +30,12 @@ public class CartItem extends RealmObject implements Parcelable {
     public String productType;
     @JsonProperty("quote_id")
     public String quoteId;
+
+    @JsonIgnore
+    private String image;
+
+    @JsonIgnore
+    private String brand;
 
 
     public Long getItemId() {
@@ -87,6 +94,22 @@ public class CartItem extends RealmObject implements Parcelable {
         this.quoteId = quoteId;
     }
 
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -102,6 +125,7 @@ public class CartItem extends RealmObject implements Parcelable {
         return itemId != null ? itemId.hashCode() : 0;
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -116,6 +140,8 @@ public class CartItem extends RealmObject implements Parcelable {
         dest.writeValue(this.price);
         dest.writeString(this.productType);
         dest.writeString(this.quoteId);
+        dest.writeString(this.image);
+        dest.writeString(this.brand);
     }
 
     public CartItem() {
@@ -129,9 +155,11 @@ public class CartItem extends RealmObject implements Parcelable {
         this.price = (Integer) in.readValue(Integer.class.getClassLoader());
         this.productType = in.readString();
         this.quoteId = in.readString();
+        this.image = in.readString();
+        this.brand = in.readString();
     }
 
-    public static final Parcelable.Creator<CartItem> CREATOR = new Parcelable.Creator<CartItem>() {
+    public static final Creator<CartItem> CREATOR = new Creator<CartItem>() {
         @Override
         public CartItem createFromParcel(Parcel source) {
             return new CartItem(source);

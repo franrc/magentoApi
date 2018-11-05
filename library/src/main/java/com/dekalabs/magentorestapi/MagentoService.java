@@ -14,6 +14,7 @@ import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
 import com.dekalabs.magentorestapi.pojo.cart.CartItem;
+import com.dekalabs.magentorestapi.pojo.cart.CartTotals;
 import com.dekalabs.magentorestapi.pojo.cart.PaymentMethod;
 import com.dekalabs.magentorestapi.pojo.cart.ShippingMethod;
 import com.dekalabs.magentorestapi.pojo.cart.ShoppingCart;
@@ -110,19 +111,25 @@ public interface MagentoService {
     Call<String> createGuestCart();
 
     @GET("guest-carts/{cartIdentifier}")
-    Call<ShoppingCart> getShoppingCartByIdentifier(@Path("cartIdentifier") String id);
+    Call<ShoppingCart> getGuestShoppingCartByIdentifier(@Path("cartIdentifier") String id);
 
     @POST("guest-carts/{cartIdentifier}/estimate-shipping-methods")
-    Call<List<ShippingMethod>> getShippingMethods(@Path("cartIdentifier") String id, @Body Address address);
+    Call<List<ShippingMethod>> getGuestShippingMethods(@Path("cartIdentifier") String id, @Body Address address);
 
     @GET("guest-carts/{cartIdentifier}/payment-methods")
-    Call<List<PaymentMethod>> getPaymentMethods(@Path("cartIdentifier") String cartId);
+    Call<List<PaymentMethod>> getGuestPaymentMethods(@Path("cartIdentifier") String cartId);
 
     @GET
     Call<ResponseBody> executeUrl(@Url String url);
 
     @POST("guest-carts/{cartIdentifier}/items")
-    Call<CartItem> addItemToCart(@Path("cartIdentifier") String cartId, @Body CartItem cartItem);
+    Call<CartItem> addItemToGuestCart(@Path("cartIdentifier") String cartId, @Body CartItem cartItem);
+
+    @POST("guest-carts/{cartIdentifier}/shipping-information")
+    Call<ShoppingCart> getGuestShippingInformation(@Path("cartIdentifier") String id);
+
+    @GET("guest-carts/{cartIdentifier}/totals")
+    Call<CartTotals> getGuestCartTotals(@Path("cartIdentifier") String id);
 
     //TODO replace ResponseBody by definitive response
     @PUT("guest-carts/{cartIdentifier}/coupons/{coupon}")
@@ -133,11 +140,11 @@ public interface MagentoService {
     Call<Boolean> isEmailAvailable(@Field("customerEmail") String email);
 
     @POST("guest-carts/{cartIdentifier}/billing-address")
-    Call<String> postBillingAddress(@Path("cartIdentifier") String cartId, @Body Address billingAddress);
+    Call<String> postGuestBillingAddress(@Path("cartIdentifier") String cartId, @Body Address billingAddress);
 
     @PUT("guest-carts/{cartIdentifier}/items/{itemId}")
-    Call<CartItem> updateCartItem(@Path("cartIdentifier") String cartId, @Path("itemId") Long itemId, @Body CartItem dto);
+    Call<CartItem> updateGuestCartItem(@Path("cartIdentifier") String cartId, @Path("itemId") Long itemId, @Body CartItem dto);
 
     @DELETE("guest-carts/{cartIdentifier}/items/{itemId}")
-    Call<Boolean> deleteCartItem(@Path("cartIdentifier") String cartId, @Path("itemId") Long itemId);
+    Call<Boolean> deleteGuestCartItem(@Path("cartIdentifier") String cartId, @Path("itemId") Long itemId);
 }

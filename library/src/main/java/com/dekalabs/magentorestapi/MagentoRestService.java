@@ -16,6 +16,7 @@ import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ProductView;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
+import com.dekalabs.magentorestapi.handler.FinishHandler;
 import com.dekalabs.magentorestapi.pojo.Address;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CategoryViews;
@@ -24,22 +25,24 @@ import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
 import com.dekalabs.magentorestapi.pojo.WishList;
 import com.dekalabs.magentorestapi.pojo.cart.CartItem;
+import com.dekalabs.magentorestapi.pojo.cart.CartTotals;
 import com.dekalabs.magentorestapi.pojo.cart.PaymentMethod;
 import com.dekalabs.magentorestapi.pojo.cart.ShippingMethod;
 import com.dekalabs.magentorestapi.pojo.cart.ShoppingCart;
 import com.dekalabs.magentorestapi.pojo.review.ReviewItem;
-import com.dekalabs.magentorestapi.utils.FinalLong;
+import com.dekalabs.magentorestapi.utils.FinalInteger;
 import com.dekalabs.magentorestapi.utils.MagentoDatabaseUtils;
 import com.dekalabs.magentorestapi.utils.FilterOptions;
+import com.dekalabs.magentorestapi.utils.Pair;
 import com.dekalabs.magentorestapi.utils.PreferencesCacheManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import java8.util.stream.StreamSupport;
 import okhttp3.Interceptor;
@@ -47,6 +50,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import retrofit2.Call;
 
 public class MagentoRestService extends DKRestService<MagentoService> {
 
@@ -767,6 +771,9 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     public void getGuestCart(ServiceCallbackOnlyOnServiceResults<ShoppingCart> callback) {
         ShoppingCart currentCart = new MagentoDatabaseUtils().retrieveCart();
 
+        currentCart = new ShoppingCart();
+        currentCart.setCartIdentifier("95064232add2cc493075957eb6871338");
+
         if(currentCart == null) {
             createGuestCart(new ServiceCallbackOnlyOnServiceResults<String>() {
                 @Override
@@ -791,42 +798,66 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
     private void findGuestCartByIds(@Nonnull String cartIdentifier, ServiceCallbackOnlyOnServiceResults<ShoppingCart> callback) {
 
+        Pair<ShoppingCart, CartTotals> pairCart = new Pair<>();
+
         ServiceCallback<ShoppingCart> finderCallback = new ServiceCallback<ShoppingCart>() {
             @Override
             public void onResults(ShoppingCart results) {
                 if(results != null) {
-                    new MagentoDatabaseUtils().saveOrUpdateShoppingCart(results);
+                    pairCart.setFirst(results);
                 }
-
-                callback.onResults(results);
             }
 
             @Override
             public void onError(int errorCode, String message) {
                 callback.onError(errorCode, message);
-            }
-
-            @Override
-            public void onFinish() {
                 callback.onFinish();
             }
         };
 
-        executeSimpleOnline(finderCallback, service.getShoppingCartByIdentifier(cartIdentifier));
+        ServiceCallback<CartTotals> totalsCallback = new ServiceCallback<CartTotals>() {
+            @Override
+            public void onResults(CartTotals results) {
+                if(results != null) {
+                    pairCart.setSecond(results);
+                }
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+                callback.onFinish();
+            }
+        };
+
+        new ParallelRestService()
+                .addServiceCall(service.getGuestShoppingCartByIdentifier(cartIdentifier), finderCallback)
+                .addServiceCall(service.getGuestCartTotals(cartIdentifier), totalsCallback)
+                .setFinishService(() -> {
+
+                    ShoppingCart cart = pairCart.getFirst();
+                    cart.setTotals(pairCart.getSecond());
+
+                    new MagentoDatabaseUtils().saveOrUpdateShoppingCart(cart);
+
+                    callback.onResults(cart);
+                    callback.onFinish();
+                })
+                .execute();
     }
 
     public void estimateShippingMethods(Address address, ServiceCallback<List<ShippingMethod>> callback) {
         ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
         if(cart == null) return;
 
-        executeSimpleOnline(callback, service.getShippingMethods(cart.getCartIdentifier(), address));
+        executeSimpleOnline(callback, service.getGuestShippingMethods(cart.getCartIdentifier(), address));
     }
 
     public void getPaymentMethods(ServiceCallback<List<PaymentMethod>> callback) {
         ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
         if(cart == null) return;
 
-        executeSimpleOnline(callback, service.getPaymentMethods(cart.getCartIdentifier()));
+        executeSimpleOnline(callback, service.getGuestPaymentMethods(cart.getCartIdentifier()));
     }
 
     public void addItemToCart(CartItem item, ServiceCallback<CartItem> callback) {
@@ -861,7 +892,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             }
         };
 
-        executeSimpleOnline(firstCallback, service.addItemToCart(cart.getCartIdentifier(), item));
+        executeSimpleOnline(firstCallback, service.addItemToGuestCart(cart.getCartIdentifier(), item));
     }
 
     public void checkIsEmailAvailable(String email, ServiceCallback<Boolean> callback) {
@@ -891,7 +922,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             }
         };
 
-        executeSimpleOnline(firstCallback, service.postBillingAddress(cart.getCartIdentifier(), address));
+        executeSimpleOnline(firstCallback, service.postGuestBillingAddress(cart.getCartIdentifier(), address));
     }
 
     public void getAddresses(ServiceCallback<List<Address>> callback) {
@@ -941,7 +972,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             }
         };
 
-        executeSimpleOnline(firstCallback, service.updateCartItem(cart.getCartIdentifier(), cartItemId, item));
+        executeSimpleOnline(firstCallback, service.updateGuestCartItem(cart.getCartIdentifier(), cartItemId, item));
     }
 
     public void deleteCartItem(Long cartItemId, ServiceCallback<Boolean> callback) {
@@ -981,10 +1012,69 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             }
         };
 
-        executeSimpleOnline(callback, service.deleteCartItem(cart.getCartIdentifier(), cartItemId));
+        executeSimpleOnline(callback, service.deleteGuestCartItem(cart.getCartIdentifier(), cartItemId));
     }
 
     public void executeUrl(String url, ServiceCallback<ResponseBody> callback) {
         executeSimpleOnline(callback, service.executeUrl(url));
+    }
+
+
+
+    @SuppressWarnings("unchecked")
+    public class ParallelRestService {
+
+        Map<Call, ServiceCallback> services;
+        FinishHandler finishHandler;
+
+        public ParallelRestService() {
+            services = new HashMap<>();
+        }
+
+        public ParallelRestService addServiceCall(Call call, ServiceCallback callback) {
+            services.put(call, callback);
+
+            return this;
+        }
+
+        public ParallelRestService setFinishService(FinishHandler finishHandler) {
+            this.finishHandler = finishHandler;
+
+            return this;
+        }
+
+        public void execute() {
+            if(finishHandler == null) throw new IllegalStateException("A FinishHandler is needed");
+
+            FinalInteger numServices = new FinalInteger(services.size());
+
+            for(Call call : services.keySet()) {
+                ServiceCallback serviceCallback = services.get(call);
+
+                ServiceCallback firstCallback = new ServiceCallback<Object>() {
+                    @Override
+                    public  void  onResults(Object results) {
+                        serviceCallback.onResults(results);
+
+                        numServices.removeValue();
+
+                        if(numServices.getValue() <= 0) {
+                            finishHandler.onFinish();
+                        }
+                    }
+
+                    @Override
+                    public void onError(int errorCode, String message) {
+                        serviceCallback.onError(errorCode, message);
+                    }
+
+                    @Override
+                    public void onFinish() {}
+                };
+
+                executeSimpleOnline(firstCallback, call);
+
+            }
+        }
     }
 }

@@ -3,6 +3,8 @@ package com.dekalabs.magentorestapi.pojo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
@@ -183,30 +185,30 @@ public class Address extends RealmObject implements Parcelable {
         this.vatId = vatId;
     }
 
-    @SuppressWarnings("unchecked")
-    @JsonProperty("region")
-    private void unpackRegion(Map<String,Object> region) {
-
-        if(region != null) {
-            Object object = region.get("region_code");
-
-            if(object != null) {
-                this.regionCode = object.toString();
-            }
-
-            Object objRegion = region.get("region");
-
-            if(objRegion != null) {
-                this.region = objRegion.toString();
-            }
-
-            Object objRegionId = region.get("region_id");
-
-            if(objRegionId != null) {
-                this.regionId = (Long)objRegionId;
-            }
-        }
-    }
+//    @SuppressWarnings("unchecked")
+//    @JsonProperty("region")
+//    private void unpackRegion(Map<String,Object> region) {
+//
+//        if(region != null) {
+//            Object object = region.get("region_code");
+//
+//            if(object != null) {
+//                this.regionCode = object.toString();
+//            }
+//
+//            Object objRegion = region.get("region");
+//
+//            if(objRegion != null) {
+//                this.region = objRegion.toString();
+//            }
+//
+//            Object objRegionId = region.get("region_id");
+//
+//            if(objRegionId != null) {
+//                this.regionId = (Long)objRegionId;
+//            }
+//        }
+//    }
 
     @SuppressWarnings("unchecked")
     @JsonProperty("customAttributes")
@@ -222,7 +224,7 @@ public class Address extends RealmObject implements Parcelable {
     }
 
     @JsonProperty("customAttributes")
-    private Map<String, Object> getCustomAttributes() {
+    private Map<String, Object> setCustomAttributes() {
         Map<String,Object> attrs = new HashMap<>();
         attrs.put("wjh_phone_secondary", this.secondaryPhone);
 

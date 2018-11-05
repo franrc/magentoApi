@@ -7,6 +7,7 @@ import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Product;
 import com.dekalabs.magentorestapi.pojo.WishList;
+import com.dekalabs.magentorestapi.pojo.cart.CartItem;
 import com.dekalabs.magentorestapi.pojo.cart.ShoppingCart;
 
 import java.util.Arrays;
@@ -302,20 +303,14 @@ public class MagentoDatabaseUtils {
         Realm realm = getRealmInstance();
         realm.beginTransaction();
 
-        //If exists on database, we only need to update it
-        if(realm.where(ShoppingCart.class).equalTo("id", cart.getId()).findFirst() != null) {
-            realm.copyToRealmOrUpdate(cart);
-            realm.commitTransaction();
-            realm.close();
-
-            return;
-        }
-
         //Otherwise, we must delete all possible pre created carts before inserting the new one
-        RealmResults<ShoppingCart> oldCarts = realm.where(ShoppingCart.class).findAll();
-        oldCarts.deleteAllFromRealm();
+        RealmResults<CartItem> oldCartItems = realm.where(CartItem.class).findAll();
+        if(oldCartItems != null) oldCartItems.deleteAllFromRealm();
 
-        realm.copyToRealm(cart);
+        RealmResults<ShoppingCart> oldCarts = realm.where(ShoppingCart.class).findAll();
+        if(oldCarts != null) oldCarts.deleteAllFromRealm();
+
+        realm.copyToRealmOrUpdate(cart);
         realm.commitTransaction();
         realm.close();
     }

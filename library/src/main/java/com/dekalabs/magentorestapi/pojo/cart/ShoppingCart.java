@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;
+import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -50,6 +51,8 @@ public class ShoppingCart extends RealmObject implements Parcelable {
     @JsonProperty("store_id")
     private Integer storeId;
 
+    private CartTotals totals;
+
     public Long getId() {
         return id;
     }
@@ -82,7 +85,7 @@ public class ShoppingCart extends RealmObject implements Parcelable {
         isActive = active;
     }
 
-    public RealmList<CartItem> getItems() {
+    public List<CartItem> getItems() {
         return items;
     }
 
@@ -130,6 +133,15 @@ public class ShoppingCart extends RealmObject implements Parcelable {
         this.cartIdentifier = cartIdentifier;
     }
 
+    public CartTotals getTotals() {
+        return totals;
+    }
+
+    public void setTotals(CartTotals totals) {
+        this.totals = totals;
+    }
+
+
     @Override
     public int describeContents() {
         return 0;
@@ -142,11 +154,12 @@ public class ShoppingCart extends RealmObject implements Parcelable {
         dest.writeLong(this.createdAt != null ? this.createdAt.getTime() : -1);
         dest.writeString(this.updatedAt);
         dest.writeValue(this.isActive);
-        dest.writeList(this.items);
+        dest.writeTypedList(this.items);
         dest.writeValue(this.itemsCount);
         dest.writeValue(this.itemsQty);
         dest.writeParcelable(this.billingAddress, flags);
         dest.writeValue(this.storeId);
+        dest.writeParcelable(this.totals, flags);
     }
 
     public ShoppingCart() {
@@ -160,14 +173,15 @@ public class ShoppingCart extends RealmObject implements Parcelable {
         this.updatedAt = in.readString();
         this.isActive = (Boolean) in.readValue(Boolean.class.getClassLoader());
         this.items = new RealmList<>();
-        in.readList(this.items, CartItem.class.getClassLoader());
+        in.readList(items, CartItem.class.getClassLoader());
         this.itemsCount = (Integer) in.readValue(Integer.class.getClassLoader());
         this.itemsQty = (Integer) in.readValue(Integer.class.getClassLoader());
         this.billingAddress = in.readParcelable(Address.class.getClassLoader());
         this.storeId = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.totals = in.readParcelable(CartTotals.class.getClassLoader());
     }
 
-    public static final Parcelable.Creator<ShoppingCart> CREATOR = new Parcelable.Creator<ShoppingCart>() {
+    public static final Creator<ShoppingCart> CREATOR = new Creator<ShoppingCart>() {
         @Override
         public ShoppingCart createFromParcel(Parcel source) {
             return new ShoppingCart(source);
