@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
 import com.dekalabs.magentorestapi.dto.Block;
+import com.dekalabs.magentorestapi.dto.CartItemDto;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.Filter;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
@@ -904,7 +905,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             }
         };
 
-        executeSimpleOnline(firstCallback, service.addItemToGuestCart(cart.getCartIdentifier(), item));
+        executeSimpleOnline(firstCallback, service.addItemToGuestCart(cart.getCartIdentifier(), new CartItemDto(item)));
     }
 
     public void checkIsEmailAvailable(String email, ServiceCallback<Boolean> callback) {
@@ -994,7 +995,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             }
         };
 
-        executeSimpleOnline(firstCallback, service.updateGuestCartItem(cart.getCartIdentifier(), cartItemId, item));
+        executeSimpleOnline(firstCallback, service.updateGuestCartItem(cart.getCartIdentifier(), cartItemId, new CartItemDto(item)));
     }
 
     public void deleteCartItem(Long cartItemId, ServiceCallback<Boolean> callback) {

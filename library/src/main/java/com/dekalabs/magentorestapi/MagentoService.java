@@ -1,6 +1,7 @@
 package com.dekalabs.magentorestapi;
 
 import com.dekalabs.magentorestapi.dto.Block;
+import com.dekalabs.magentorestapi.dto.CartItemDto;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
@@ -123,7 +124,7 @@ public interface MagentoService {
     Call<ResponseBody> executeUrl(@Url String url);
 
     @POST("guest-carts/{cartIdentifier}/items")
-    Call<CartItem> addItemToGuestCart(@Path("cartIdentifier") String cartId, @Body CartItem cartItem);
+    Call<CartItem> addItemToGuestCart(@Path("cartIdentifier") String cartId, @Body CartItemDto cartItem);
 
     @POST("guest-carts/{cartIdentifier}/shipping-information")
     Call<ShoppingCart> getGuestShippingInformation(@Path("cartIdentifier") String id);
@@ -143,7 +144,7 @@ public interface MagentoService {
     Call<String> postGuestBillingAddress(@Path("cartIdentifier") String cartId, @Body Address billingAddress);
 
     @PUT("guest-carts/{cartIdentifier}/items/{itemId}")
-    Call<CartItem> updateGuestCartItem(@Path("cartIdentifier") String cartId, @Path("itemId") Long itemId, @Body CartItem dto);
+    Call<CartItem> updateGuestCartItem(@Path("cartIdentifier") String cartId, @Path("itemId") Long itemId, @Body CartItemDto dto);
 
     @DELETE("guest-carts/{cartIdentifier}/items/{itemId}")
     Call<Boolean> deleteGuestCartItem(@Path("cartIdentifier") String cartId, @Path("itemId") Long itemId);
