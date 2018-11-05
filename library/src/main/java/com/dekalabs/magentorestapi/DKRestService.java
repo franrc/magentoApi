@@ -253,7 +253,13 @@ public abstract class DKRestService<IFSERVICE> {
                             return;
                         }
                         else {
-                            callback.onError(response.code(), response.message());
+                            MagentoError magentoError = Jackson.DEFAULT_MAPPER.reader().readValue(response.errorBody());
+
+                            if(magentoError != null)
+                                callback.onError(responseCode, magentoError.getError());
+                            else
+                                callback.onError(response.code(), response.message());
+
                             callback.onFinish();
                         }
                     }
