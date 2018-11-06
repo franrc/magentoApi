@@ -884,7 +884,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                     MagentoDatabaseUtils dbUtils = new MagentoDatabaseUtils();
                     ShoppingCart cart = dbUtils.retrieveCart();
 
-                    cart.getItems().add(item);
+                    cart.getItems().add(results);
 
                     dbUtils.saveOrUpdateShoppingCart(cart);
                 }
