@@ -3,8 +3,6 @@ package com.dekalabs.magentorestapi.pojo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
@@ -29,6 +27,7 @@ public class Address extends RealmObject implements Parcelable {
     private String region;
     private Long regionId;
     private String countryId;
+    private String country;
 
     private String streetName;
     private String addressName;
@@ -185,7 +184,15 @@ public class Address extends RealmObject implements Parcelable {
         this.vatId = vatId;
     }
 
-//    @SuppressWarnings("unchecked")
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    //    @SuppressWarnings("unchecked")
 //    @JsonProperty("region")
 //    private void unpackRegion(Map<String,Object> region) {
 //
@@ -274,6 +281,7 @@ public class Address extends RealmObject implements Parcelable {
         dest.writeString(this.prefix);
         dest.writeString(this.suffix);
         dest.writeString(this.vatId);
+        dest.writeString(this.country);
     }
 
     public Address() {
@@ -300,6 +308,7 @@ public class Address extends RealmObject implements Parcelable {
         this.prefix = in.readString();
         this.suffix = in.readString();
         this.vatId = in.readString();
+        this.country = in.readString();
     }
 
     public static final Creator<Address> CREATOR = new Creator<Address>() {

@@ -17,6 +17,7 @@ import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ProductView;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
+import com.dekalabs.magentorestapi.dto.ShippingAddressDTO;
 import com.dekalabs.magentorestapi.handler.FinishHandler;
 import com.dekalabs.magentorestapi.pojo.Address;
 import com.dekalabs.magentorestapi.pojo.Category;
@@ -938,6 +939,37 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         executeSimpleOnline(firstCallback, service.postGuestBillingAddress(cart.getCartIdentifier(), address));
     }
 
+    public void shippingAddressEstimation(Address address, ShippingMethod shippingMethod, ServiceCallback callback) {
+        ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
+        if(cart == null) return;
+
+        ServiceCallback firstCallback = new ServiceCallback() {
+            @Override
+            public void onResults(Object results) {
+                new MagentoDatabaseUtils().saveAddress(address);
+
+                callback.onResults(results);
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+            }
+
+            @Override
+            public void onFinish() {
+                callback.onFinish();
+            }
+        };
+
+        ShippingAddressDTO.AddressInformation addressInfo = new ShippingAddressDTO.AddressInformation();
+        addressInfo.setShippingAddress(address);
+        addressInfo.setShippingCarrierCode(shippingMethod.carrierCode);
+        addressInfo.setShippingMethodCode(shippingMethod.methodCode);
+
+        executeSimpleOnline(firstCallback, service.getGuestShippingInformation(cart.getCartIdentifier(), new ShippingAddressDTO(addressInfo)));
+    }
+
     public void getAddresses(ServiceCallback<List<Address>> callback) {
         callback.onResults(new MagentoDatabaseUtils().getAddresses());
         callback.onFinish();
@@ -1036,6 +1068,13 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         };
 
         executeSimpleOnline(firstCallback, service.deleteGuestCartItem(cart.getCartIdentifier(), cartItemId));
+    }
+
+    public void applyDiscountCoupon(String coupon, ServiceCallback<Boolean> callback) {
+        ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
+        if(cart == null) return;
+
+        executeSimpleOnline(callback, service.applyCoupon(cart.getCartIdentifier(), coupon));
     }
 
     public void executeUrl(String url, ServiceCallback<ResponseBody> callback) {

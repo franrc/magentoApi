@@ -8,6 +8,7 @@ import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
+import com.dekalabs.magentorestapi.dto.ShippingAddressDTO;
 import com.dekalabs.magentorestapi.pojo.Address;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CategoryViews;
@@ -127,14 +128,13 @@ public interface MagentoService {
     Call<CartItem> addItemToGuestCart(@Path("cartIdentifier") String cartId, @Body CartItemDto cartItem);
 
     @POST("guest-carts/{cartIdentifier}/shipping-information")
-    Call<ShoppingCart> getGuestShippingInformation(@Path("cartIdentifier") String id);
+    Call<ShoppingCart> getGuestShippingInformation(@Path("cartIdentifier") String id, @Body ShippingAddressDTO dto);
 
     @GET("guest-carts/{cartIdentifier}/totals")
     Call<CartTotals> getGuestCartTotals(@Path("cartIdentifier") String id);
 
-    //TODO replace ResponseBody by definitive response
     @PUT("guest-carts/{cartIdentifier}/coupons/{coupon}")
-    Call<ResponseBody> applyCoupon(@Path("cartIdentifier") String cartId, @Path("coupon") String coupon);
+    Call<Boolean> applyCoupon(@Path("cartIdentifier") String cartId, @Path("coupon") String coupon);
 
     @POST("customers/isEmailAvailable")
     @FormUrlEncoded
