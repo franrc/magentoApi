@@ -1,5 +1,6 @@
 package com.dekalabs.magentorestapi;
 
+import com.dekalabs.magentorestapi.dto.AddressDTO;
 import com.dekalabs.magentorestapi.dto.Block;
 import com.dekalabs.magentorestapi.dto.CartItemDto;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
@@ -116,7 +117,7 @@ public interface MagentoService {
     Call<ShoppingCart> getGuestShoppingCartByIdentifier(@Path("cartIdentifier") String id);
 
     @POST("guest-carts/{cartIdentifier}/estimate-shipping-methods")
-    Call<List<ShippingMethod>> getGuestShippingMethods(@Path("cartIdentifier") String id, @Body Address address);
+    Call<List<ShippingMethod>> getGuestShippingMethods(@Path("cartIdentifier") String id, @Body AddressDTO address);
 
     @GET("guest-carts/{cartIdentifier}/payment-methods")
     Call<List<PaymentMethod>> getGuestPaymentMethods(@Path("cartIdentifier") String cartId);

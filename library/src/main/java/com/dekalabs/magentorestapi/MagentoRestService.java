@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
+import com.dekalabs.magentorestapi.dto.AddressDTO;
 import com.dekalabs.magentorestapi.dto.Block;
 import com.dekalabs.magentorestapi.dto.CartItemDto;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
@@ -850,7 +851,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
         if(cart == null) return;
 
-        executeSimpleOnline(callback, service.getGuestShippingMethods(cart.getCartIdentifier(), address));
+        executeSimpleOnline(callback, service.getGuestShippingMethods(cart.getCartIdentifier(), new AddressDTO(address)));
     }
 
     public void getPaymentMethods(ServiceCallback<List<PaymentMethod>> callback) {
