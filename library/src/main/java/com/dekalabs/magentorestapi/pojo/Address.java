@@ -28,7 +28,8 @@ public class Address extends RealmObject implements Parcelable {
     private String region;
     private Long regionId;
     private String countryId;
-    private String country;
+
+    private String email;
 
     @JsonIgnore
     private String streetName;
@@ -188,13 +189,6 @@ public class Address extends RealmObject implements Parcelable {
         this.vatId = vatId;
     }
 
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
 
     //    @SuppressWarnings("unchecked")
 //    @JsonProperty("region")
@@ -258,6 +252,14 @@ public class Address extends RealmObject implements Parcelable {
         this.addressName = street.size() > 1 ? street.get(1) : "";
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -285,7 +287,7 @@ public class Address extends RealmObject implements Parcelable {
         dest.writeString(this.prefix);
         dest.writeString(this.suffix);
         dest.writeString(this.vatId);
-        dest.writeString(this.country);
+        dest.writeString(this.email);
     }
 
     public Address() {
@@ -312,7 +314,7 @@ public class Address extends RealmObject implements Parcelable {
         this.prefix = in.readString();
         this.suffix = in.readString();
         this.vatId = in.readString();
-        this.country = in.readString();
+        this.email = in.readString();
     }
 
     public static final Creator<Address> CREATOR = new Creator<Address>() {

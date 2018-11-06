@@ -10,6 +10,7 @@ import com.dekalabs.magentorestapi.dto.AddressDTO;
 import com.dekalabs.magentorestapi.dto.Block;
 import com.dekalabs.magentorestapi.dto.CartItemDto;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
+import com.dekalabs.magentorestapi.dto.CustomerEmailCheckerDTO;
 import com.dekalabs.magentorestapi.dto.Filter;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
@@ -908,7 +909,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     }
 
     public void checkIsEmailAvailable(String email, ServiceCallback<Boolean> callback) {
-        executeSimpleOnline(callback, service.isEmailAvailable(email));
+        executeSimpleOnline(callback, service.isEmailAvailable(new CustomerEmailCheckerDTO(email)));
     }
 
     public void sendBillingAddress(Address address, ServiceCallback callback) {

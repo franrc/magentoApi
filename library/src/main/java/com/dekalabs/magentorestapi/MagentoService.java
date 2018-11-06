@@ -4,6 +4,7 @@ import com.dekalabs.magentorestapi.dto.AddressDTO;
 import com.dekalabs.magentorestapi.dto.Block;
 import com.dekalabs.magentorestapi.dto.CartItemDto;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
+import com.dekalabs.magentorestapi.dto.CustomerEmailCheckerDTO;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
@@ -138,8 +139,7 @@ public interface MagentoService {
     Call<Boolean> applyCoupon(@Path("cartIdentifier") String cartId, @Path("coupon") String coupon);
 
     @POST("customers/isEmailAvailable")
-    @FormUrlEncoded
-    Call<Boolean> isEmailAvailable(@Field("customerEmail") String email);
+    Call<Boolean> isEmailAvailable(@Body CustomerEmailCheckerDTO dto);
 
     @POST("guest-carts/{cartIdentifier}/billing-address")
     Call<String> postGuestBillingAddress(@Path("cartIdentifier") String cartId, @Body Address billingAddress);
