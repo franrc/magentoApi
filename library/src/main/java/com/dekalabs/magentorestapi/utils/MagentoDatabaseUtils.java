@@ -8,6 +8,10 @@ import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Product;
 import com.dekalabs.magentorestapi.pojo.WishList;
 import com.dekalabs.magentorestapi.pojo.cart.CartItem;
+import com.dekalabs.magentorestapi.pojo.cart.CartTotals;
+import com.dekalabs.magentorestapi.pojo.cart.Currency;
+import com.dekalabs.magentorestapi.pojo.cart.PaymentMethod;
+import com.dekalabs.magentorestapi.pojo.cart.ShippingMethod;
 import com.dekalabs.magentorestapi.pojo.cart.ShoppingCart;
 
 import java.util.Arrays;
@@ -26,23 +30,31 @@ import java8.util.stream.StreamSupport;
 
 public class MagentoDatabaseUtils {
 
-    private static RealmConfiguration configuration;
-
-    public static RealmConfiguration getMagentoRealmConfig() {
-        if(configuration == null) {
-            configuration = new RealmConfiguration.Builder()
+    private static RealmConfiguration getMagentoRealmConfig() {
+        return new RealmConfiguration.Builder()
                     .schemaVersion(0)
                     .addModule(new MagentoDatabaseUtils.MagentoModule())
                     .name("magento.realm")
                     .deleteRealmIfMigrationNeeded()
                     .build();
-        }
-
-        return configuration;
     }
+
+    private static RealmConfiguration getCheckoutRealmConfig() {
+        return new RealmConfiguration.Builder()
+                .schemaVersion(0)
+                .addModule(new MagentoDatabaseUtils.CheckoutModule())
+                .name("magento.checkout.realm")
+                .deleteRealmIfMigrationNeeded()
+                .build();
+    }
+
 
     private Realm getRealmInstance() {
         return Realm.getInstance(getMagentoRealmConfig());
+    }
+
+    private Realm getCheckoutRealmInstance() {
+        return Realm.getInstance(getCheckoutRealmConfig());
     }
 
     public List<CustomAttribute> getCustomAttributes() {
@@ -286,7 +298,7 @@ public class MagentoDatabaseUtils {
 
     /** CART ***/
     public ShoppingCart retrieveCart() {
-        Realm realm = getRealmInstance();
+        Realm realm = getCheckoutRealmInstance();
         ShoppingCart cart = realm.where(ShoppingCart.class).findFirst();
 
         if(cart == null) {
@@ -300,7 +312,7 @@ public class MagentoDatabaseUtils {
     public void saveOrUpdateShoppingCart(ShoppingCart cart) {
         if(cart == null) return;
 
-        Realm realm = getRealmInstance();
+        Realm realm = getCheckoutRealmInstance();
         realm.beginTransaction();
 
         //Otherwise, we must delete all possible pre created carts before inserting the new one
@@ -339,6 +351,19 @@ public class MagentoDatabaseUtils {
         return addresses;
     }
 
+    public void deleteAddesses() {
+        Realm realm = getRealmInstance();
+        realm.beginTransaction();
+
+        RealmResults<Address> addresses = realm.where(Address.class).findAll();
+
+        if(addresses != null)
+            addresses.deleteAllFromRealm();
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
     private <DATA extends RealmObject> DATA copyFromRealm(Realm realm, DATA result, boolean closeRealm) {
         DATA copiedData = null;
 
@@ -349,6 +374,23 @@ public class MagentoDatabaseUtils {
             realm.close();
 
         return copiedData;
+    }
+
+    public void clearCheckoutDatabase(boolean deleteAlsoAddresses) {
+        Realm realm = getCheckoutRealmInstance();
+
+        try {
+            realm.close();
+            Realm.deleteRealm(realm.getConfiguration());
+            //Realm file has been deleted.
+        } catch (Exception ex){
+            ex.printStackTrace();
+            //No Realm file to remove.
+        }
+
+        if(deleteAlsoAddresses) {
+            deleteAddesses();
+        }
     }
 
     public void clearDatabase() {
@@ -366,6 +408,10 @@ public class MagentoDatabaseUtils {
 
     @RealmModule(library = true, allClasses = true)
     public static class MagentoModule {
+    }
+
+    @RealmModule(library = true, allClasses = false, classes = {ShoppingCart.class, CartItem.class, CartTotals.class, Currency.class, PaymentMethod.class, ShippingMethod.class})
+    public static class CheckoutModule {
     }
 
 }
