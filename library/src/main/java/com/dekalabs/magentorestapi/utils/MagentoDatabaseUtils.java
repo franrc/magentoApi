@@ -410,7 +410,7 @@ public class MagentoDatabaseUtils {
     public static class MagentoModule {
     }
 
-    @RealmModule(library = true, allClasses = false, classes = {ShoppingCart.class, CartItem.class, CartTotals.class, Currency.class})
+    @RealmModule(library = true, allClasses = false, classes = {ShoppingCart.class, CartItem.class, CartTotals.class, Currency.class, Address.class})
     public static class CheckoutModule {
     }
 
