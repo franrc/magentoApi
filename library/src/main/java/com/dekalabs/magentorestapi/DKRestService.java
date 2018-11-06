@@ -254,16 +254,17 @@ public abstract class DKRestService<IFSERVICE> {
                         }
                         else {
                             try {
-                                MagentoError magentoError = Jackson.DEFAULT_MAPPER.reader().readValue(response.errorBody().string());
+                                MagentoError magentoError = Jackson.DEFAULT_MAPPER.readValue(response.body().toString(), MagentoError.class);
 
                                 if (magentoError != null)
                                     callback.onError(responseCode, magentoError.getError());
                                 else
                                     callback.onError(response.code(), response.message());
-
-                                callback.onFinish();
                             } catch (IOException e) {
-                                callback.onError(response.code(), response.message());
+                                e.printStackTrace();
+                                Log.e("DKRestService", "Parsing Magento Error: " + e.getMessage());
+
+                            } finally {
                                 callback.onFinish();
                             }
                         }

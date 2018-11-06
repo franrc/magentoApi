@@ -773,9 +773,6 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     public void getGuestCart(ServiceCallbackOnlyOnServiceResults<ShoppingCart> callback) {
         ShoppingCart currentCart = new MagentoDatabaseUtils().retrieveCart();
 
-        currentCart = new ShoppingCart();
-        currentCart.setCartIdentifier("95064232add2cc493075957eb6871338");
-
         if(currentCart == null) {
             createGuestCart(new ServiceCallbackOnlyOnServiceResults<String>() {
                 @Override
