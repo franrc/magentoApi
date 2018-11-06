@@ -28,6 +28,9 @@ public class ShippingAddressDTO {
         @JsonProperty("shipping_address")
         private Address shippingAddress;
 
+        @JsonProperty("billing_address")
+        private Address billingAddress;
+
         @JsonProperty("shipping_method_code")
         private String shippingMethodCode;
 
@@ -56,6 +59,14 @@ public class ShippingAddressDTO {
 
         public void setShippingCarrierCode(String shippingCarrierCode) {
             this.shippingCarrierCode = shippingCarrierCode;
+        }
+
+        public Address getBillingAddress() {
+            return billingAddress;
+        }
+
+        public void setBillingAddress(Address billingAddress) {
+            this.billingAddress = billingAddress;
         }
     }
 }

@@ -963,6 +963,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
         ShippingAddressDTO.AddressInformation addressInfo = new ShippingAddressDTO.AddressInformation();
         addressInfo.setShippingAddress(address);
+        addressInfo.setBillingAddress(address);
         addressInfo.setShippingCarrierCode(shippingMethod.carrierCode);
         addressInfo.setShippingMethodCode(shippingMethod.methodCode);
 
