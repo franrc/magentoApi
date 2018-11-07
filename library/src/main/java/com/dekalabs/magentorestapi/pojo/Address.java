@@ -50,6 +50,8 @@ public class Address extends RealmObject implements Parcelable {
     private String prefix;
     private String suffix;
 
+    private int sameAsBilling;
+
     @JsonProperty("vat_id")
     private String vatId;
 
@@ -260,6 +262,14 @@ public class Address extends RealmObject implements Parcelable {
         this.email = email;
     }
 
+    public int getSameAsBilling() {
+        return sameAsBilling;
+    }
+
+    public void setSameAsBilling(int sameAsBilling) {
+        this.sameAsBilling = sameAsBilling;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -288,6 +298,7 @@ public class Address extends RealmObject implements Parcelable {
         dest.writeString(this.suffix);
         dest.writeString(this.vatId);
         dest.writeString(this.email);
+        dest.writeInt(this.sameAsBilling);
     }
 
     public Address() {
@@ -315,6 +326,7 @@ public class Address extends RealmObject implements Parcelable {
         this.suffix = in.readString();
         this.vatId = in.readString();
         this.email = in.readString();
+        this.sameAsBilling = in.readInt();
     }
 
     public static final Creator<Address> CREATOR = new Creator<Address>() {

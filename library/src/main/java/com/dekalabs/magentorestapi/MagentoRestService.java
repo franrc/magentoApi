@@ -976,6 +976,8 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             }
         };
 
+        address.setSameAsBilling(1);
+
         ShippingAddressDTO.AddressInformation addressInfo = new ShippingAddressDTO.AddressInformation();
         addressInfo.setShippingAddress(address);
         addressInfo.setBillingAddress(address);
