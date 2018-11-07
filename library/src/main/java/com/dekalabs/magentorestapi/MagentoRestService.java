@@ -11,6 +11,7 @@ import com.dekalabs.magentorestapi.dto.Block;
 import com.dekalabs.magentorestapi.dto.CartItemDto;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.CustomerEmailCheckerDTO;
+import com.dekalabs.magentorestapi.dto.DeliveryNotesDto;
 import com.dekalabs.magentorestapi.dto.Filter;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
@@ -812,8 +813,20 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
             @Override
             public void onError(int errorCode, String message) {
-                callback.onError(errorCode, message);
-                callback.onFinish();
+                //CART is NOT VALID
+                new MagentoDatabaseUtils().clearCheckoutDatabase(true);
+
+                createGuestCart(new ServiceCallbackOnlyOnServiceResults<String>() {
+                    @Override
+                    public void onResults(String results) {
+                        findGuestCartByIds(results, callback);
+                    }
+
+                    @Override
+                    public void onError(int errorCode, String message) {
+                        callback.onError(errorCode, message);
+                    }
+                });
             }
         };
 
@@ -1075,6 +1088,21 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         if(cart == null) return;
 
         executeSimpleOnline(callback, service.applyCoupon(cart.getCartIdentifier(), coupon));
+    }
+
+    public void sendDeliveryNotes(String deliveryNotes, ServiceCallback<ResponseBody> callback) {
+        ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
+        if(cart == null) return;
+
+        DeliveryNotesDto dto = new DeliveryNotesDto();
+        dto.setCartId(cart.getCartIdentifier());
+
+        DeliveryNotesDto.OrderComment comment = new DeliveryNotesDto.OrderComment();
+        comment.setComment(deliveryNotes);
+
+        dto.setOrderComment(comment);
+
+        executeSimpleOnline(callback, service.setDeliveryNotes(cart.getCartIdentifier(), dto));
     }
 
     public void executeUrl(String url, ServiceCallback<ResponseBody> callback) {

@@ -1,10 +1,13 @@
 package com.dekalabs.magentorestapi;
 
+import android.app.Service;
+
 import com.dekalabs.magentorestapi.dto.AddressDTO;
 import com.dekalabs.magentorestapi.dto.Block;
 import com.dekalabs.magentorestapi.dto.CartItemDto;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.CustomerEmailCheckerDTO;
+import com.dekalabs.magentorestapi.dto.DeliveryNotesDto;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
@@ -149,4 +152,8 @@ public interface MagentoService {
 
     @DELETE("guest-carts/{cartIdentifier}/items/{itemId}")
     Call<Boolean> deleteGuestCartItem(@Path("cartIdentifier") String cartId, @Path("itemId") Long itemId);
+
+    @PUT("guest-carts/{cartIdentifier}/set-order-comment")
+    Call<ResponseBody> setDeliveryNotes(@Path("cartIdentifier") String cartId, @Body DeliveryNotesDto dto);
+
 }
