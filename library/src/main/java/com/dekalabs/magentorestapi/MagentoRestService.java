@@ -16,6 +16,7 @@ import com.dekalabs.magentorestapi.dto.Filter;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.dto.Pagination;
+import com.dekalabs.magentorestapi.dto.PaymentAssignementMethodDTO;
 import com.dekalabs.magentorestapi.dto.PlaceOrderDTO;
 import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ProductView;
@@ -1112,7 +1113,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
         PlaceOrderDTO dto = new PlaceOrderDTO();
         dto.setBillingAddress(billingAddress);
-        dto.setPaymentMethod(paymentMethod);
+        dto.setPaymentMethod(new PaymentAssignementMethodDTO(paymentMethod.getCode()));
         dto.setEmail(email);
 
         executeSimpleOnline(callback, service.placeOrder(cart.getCartIdentifier(), dto));

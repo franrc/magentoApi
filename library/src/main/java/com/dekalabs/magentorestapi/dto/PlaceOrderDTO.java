@@ -8,7 +8,7 @@ public class PlaceOrderDTO {
 
     private Address billingAddress;
 
-    private PaymentMethod paymentMethod;
+    private PaymentAssignementMethodDTO paymentMethod;
 
     private String email;
 
@@ -20,11 +20,11 @@ public class PlaceOrderDTO {
         this.billingAddress = billingAddress;
     }
 
-    public PaymentMethod getPaymentMethod() {
+    public PaymentAssignementMethodDTO getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
+    public void setPaymentMethod(PaymentAssignementMethodDTO paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 
