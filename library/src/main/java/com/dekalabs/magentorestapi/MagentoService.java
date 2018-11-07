@@ -10,6 +10,7 @@ import com.dekalabs.magentorestapi.dto.CustomerEmailCheckerDTO;
 import com.dekalabs.magentorestapi.dto.DeliveryNotesDto;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
+import com.dekalabs.magentorestapi.dto.PlaceOrderDTO;
 import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
@@ -155,5 +156,8 @@ public interface MagentoService {
 
     @PUT("guest-carts/{cartIdentifier}/set-order-comment")
     Call<ResponseBody> setDeliveryNotes(@Path("cartIdentifier") String cartId, @Body DeliveryNotesDto dto);
+
+    @POST("guest-carts/{cartIdentifier}/payment-information")
+    Call<String> placeOrder(@Path("cartIdentifier") String cartId, @Body PlaceOrderDTO dto);
 
 }

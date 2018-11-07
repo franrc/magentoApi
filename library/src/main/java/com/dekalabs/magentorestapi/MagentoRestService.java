@@ -16,6 +16,7 @@ import com.dekalabs.magentorestapi.dto.Filter;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.dto.Pagination;
+import com.dekalabs.magentorestapi.dto.PlaceOrderDTO;
 import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ProductView;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
@@ -1103,6 +1104,18 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         dto.setOrderComment(comment);
 
         executeSimpleOnline(callback, service.setDeliveryNotes(cart.getCartIdentifier(), dto));
+    }
+
+    public void placeOrder(Address billingAddress, PaymentMethod paymentMethod, String email, ServiceCallback<String> callback) {
+        ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
+        if(cart == null) return;
+
+        PlaceOrderDTO dto = new PlaceOrderDTO();
+        dto.setBillingAddress(billingAddress);
+        dto.setPaymentMethod(paymentMethod);
+        dto.setEmail(email);
+
+        executeSimpleOnline(callback, service.placeOrder(cart.getCartIdentifier(), dto));
     }
 
     public void executeUrl(String url, ServiceCallback<ResponseBody> callback) {
