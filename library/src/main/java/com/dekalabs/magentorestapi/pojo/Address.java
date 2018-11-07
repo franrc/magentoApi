@@ -17,6 +17,7 @@ import io.realm.annotations.PrimaryKey;
 public class Address extends RealmObject implements Parcelable {
 
     @PrimaryKey
+    @JsonIgnore
     private Long id;
 
     @JsonProperty("customer_id")
