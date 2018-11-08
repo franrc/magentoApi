@@ -9,6 +9,7 @@ import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
 import com.dekalabs.magentorestapi.dto.AddressDTO;
 import com.dekalabs.magentorestapi.dto.Block;
 import com.dekalabs.magentorestapi.dto.CartItemDto;
+import com.dekalabs.magentorestapi.dto.CountryRegion;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.CustomerEmailCheckerDTO;
 import com.dekalabs.magentorestapi.dto.DeliveryNotesDto;
@@ -1138,6 +1139,10 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         dto.setEmail(email);
 
         executeSimpleOnline(callback, service.placeOrder(cart.getCartIdentifier(), dto));
+    }
+
+    public void getCountries(ServiceCallback<List<CountryRegion>> callback) {
+        executeSimpleOnline(callback, service.getCountries());
     }
 
     public void executeUrl(String url, ServiceCallback<ResponseBody> callback) {

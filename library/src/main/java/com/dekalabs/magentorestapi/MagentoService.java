@@ -5,6 +5,7 @@ import android.app.Service;
 import com.dekalabs.magentorestapi.dto.AddressDTO;
 import com.dekalabs.magentorestapi.dto.Block;
 import com.dekalabs.magentorestapi.dto.CartItemDto;
+import com.dekalabs.magentorestapi.dto.CountryRegion;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.CustomerEmailCheckerDTO;
 import com.dekalabs.magentorestapi.dto.DeliveryNotesDto;
@@ -159,5 +160,8 @@ public interface MagentoService {
 
     @POST("guest-carts/{cartIdentifier}/payment-information")
     Call<String> placeOrder(@Path("cartIdentifier") String cartId, @Body PlaceOrderDTO dto);
+
+    @GET("directory/countries")
+    Call<List<CountryRegion>> getCountries();
 
 }
