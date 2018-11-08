@@ -1123,7 +1123,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     public void placeOrder(Address billingAddress, PaymentMethod paymentMethod, String email, ServiceCallback<String> callback) {
         placeOrder(billingAddress, paymentMethod, null, email, callback);
     }
-    public void placeOrder(Address billingAddress, PaymentMethod paymentMethod, String creditCardToken, String email, ServiceCallback<String> callback) {
+    public void placeOrder(Address billingAddress, PaymentMethod paymentMethod, PaymentAssignementMethodDTO.CreditCardAdditionalData ccData, String email, ServiceCallback<String> callback) {
         ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
         if(cart == null) return;
 
@@ -1132,10 +1132,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
         PaymentAssignementMethodDTO pmDto = new PaymentAssignementMethodDTO(paymentMethod.getCode());
 
-        PaymentAssignementMethodDTO.CreditCardAdditionalData additionalData = new PaymentAssignementMethodDTO.CreditCardAdditionalData();
-        additionalData.setCardTokenId(creditCardToken);
-
-        pmDto.setAdditionalData(additionalData);
+        pmDto.setAdditionalData(ccData);
 
         dto.setPaymentMethod(pmDto);
         dto.setEmail(email);
