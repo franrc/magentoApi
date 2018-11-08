@@ -1119,13 +1119,25 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         executeSimpleOnline(callback, service.setDeliveryNotes(cart.getCartIdentifier(), dto));
     }
 
+
     public void placeOrder(Address billingAddress, PaymentMethod paymentMethod, String email, ServiceCallback<String> callback) {
+        placeOrder(billingAddress, paymentMethod, null, email, callback);
+    }
+    public void placeOrder(Address billingAddress, PaymentMethod paymentMethod, String creditCardToken, String email, ServiceCallback<String> callback) {
         ShoppingCart cart = new MagentoDatabaseUtils().retrieveCart();
         if(cart == null) return;
 
         PlaceOrderDTO dto = new PlaceOrderDTO();
         dto.setBillingAddress(billingAddress);
-        dto.setPaymentMethod(new PaymentAssignementMethodDTO(paymentMethod.getCode()));
+
+        PaymentAssignementMethodDTO pmDto = new PaymentAssignementMethodDTO(paymentMethod.getCode());
+
+        PaymentAssignementMethodDTO.CreditCardAdditionalData additionalData = new PaymentAssignementMethodDTO.CreditCardAdditionalData();
+        additionalData.setCardTokenId(creditCardToken);
+
+        pmDto.setAdditionalData(additionalData);
+
+        dto.setPaymentMethod(pmDto);
         dto.setEmail(email);
 
         executeSimpleOnline(callback, service.placeOrder(cart.getCartIdentifier(), dto));
