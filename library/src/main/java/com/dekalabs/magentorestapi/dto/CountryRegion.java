@@ -14,6 +14,13 @@ public class CountryRegion {
     @JsonProperty("available_regions")
     List<Region> regions;
 
+    public CountryRegion() {
+    }
+
+    public CountryRegion(String id) {
+        this.id = id;
+    }
+
     public String getId() {
         return id;
     }
@@ -36,6 +43,21 @@ public class CountryRegion {
 
     public void setRegions(List<Region> regions) {
         this.regions = regions;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CountryRegion that = (CountryRegion) o;
+
+        return id != null ? id.equals(that.id) : that.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 
     public static class Region {
@@ -65,6 +87,21 @@ public class CountryRegion {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Region region = (Region) o;
+
+            return id != null ? id.equals(region.id) : region.id == null;
+        }
+
+        @Override
+        public int hashCode() {
+            return id != null ? id.hashCode() : 0;
         }
     }
 }
