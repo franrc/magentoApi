@@ -807,9 +807,12 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         ServiceCallback<ShoppingCart> finderCallback = new ServiceCallback<ShoppingCart>() {
             @Override
             public void onResults(ShoppingCart results) {
-                if(results != null) {
+                if(results != null && results.getActive()) {
                     results.setCartIdentifier(cartIdentifier);
                     pairCart.setFirst(results);
+                }
+                else {
+                    onError(1, "");
                 }
             }
 
