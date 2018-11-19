@@ -323,7 +323,7 @@ public abstract class DKRestService<IFSERVICE> {
                                 callback.onResults(magentoResponse);
 
                             } catch (Exception e) {
-                                    Log.e("DKRestService", "Parsing Magento Error: " + e1.getMessage());
+                                    Log.e("DKRestService", "Parsing Magento Error: " + e.getMessage());
                                     callback.onError(response.code(), response.message());
                             }
                             finally {
