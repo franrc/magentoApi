@@ -250,8 +250,10 @@ public abstract class DKRestService<IFSERVICE> {
                             callback.onFinish();
                         }
                         else {
+                            final String errorBody = response.errorBody().toString();
+
                             try {
-                                MagentoError magentoError = Jackson.DEFAULT_MAPPER.readValue(response.errorBody().string(), MagentoError.class);
+                                MagentoError magentoError = Jackson.DEFAULT_MAPPER.readValue(errorBody, MagentoError.class);
 
                                 if (magentoError != null)
                                     callback.onError(responseCode, magentoError.getError());
@@ -259,7 +261,7 @@ public abstract class DKRestService<IFSERVICE> {
                                     callback.onError(response.code(), response.message());
                             } catch (IOException e) {
                                     try {
-                                        MagentoRegisterError magentoRegError = Jackson.DEFAULT_MAPPER.readValue(response.body().toString(), MagentoRegisterError.class);
+                                        MagentoRegisterError magentoRegError = Jackson.DEFAULT_MAPPER.readValue(errorBody, MagentoRegisterError.class);
                                         callback.onError(responseCode, magentoRegError.getError());
                                     } catch (IOException e1) {
                                         Log.e("DKRestService", "Parsing Magento Error: " + e1.getMessage());
@@ -315,6 +317,7 @@ public abstract class DKRestService<IFSERVICE> {
                             return;
                         }
                         else {
+
                             try {
                                 MagentoError magentoError = Jackson.DEFAULT_MAPPER.readValue(response.errorBody().toString(), MagentoError.class);
                                 MagentoListResponse<ServerType> magentoResponse = new MagentoListResponse<>();
