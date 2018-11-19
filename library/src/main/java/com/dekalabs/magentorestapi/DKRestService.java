@@ -250,9 +250,11 @@ public abstract class DKRestService<IFSERVICE> {
                             callback.onFinish();
                         }
                         else {
+                            String errorBody;
 
                             try {
-                                final String errorBody = response.errorBody().string();
+                                errorBody  = response.errorBody().string();
+
                                 MagentoError magentoError = Jackson.DEFAULT_MAPPER.readValue(errorBody, MagentoError.class);
 
                                 if (magentoError != null)
@@ -261,7 +263,6 @@ public abstract class DKRestService<IFSERVICE> {
                                     callback.onError(response.code(), response.message());
                             } catch (IOException e) {
                                     try {
-                                        final String errorBody = response.errorBody().string();
                                         MagentoRegisterError magentoRegError = Jackson.DEFAULT_MAPPER.readValue(errorBody, MagentoRegisterError.class);
                                         callback.onError(responseCode, magentoRegError.getError());
                                     } catch (IOException e1) {
