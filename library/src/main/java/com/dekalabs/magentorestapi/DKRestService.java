@@ -250,7 +250,7 @@ public abstract class DKRestService<IFSERVICE> {
                             callback.onFinish();
                         }
                         else {
-                            String errorBody;
+                            String errorBody = "";
 
                             try {
                                 errorBody  = response.errorBody().string();
