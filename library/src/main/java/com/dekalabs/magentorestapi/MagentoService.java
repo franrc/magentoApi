@@ -94,7 +94,7 @@ public interface MagentoService {
     @POST("review/guest/post")
     Call<ReviewResponseDTO> sendGuestReview(@Body ReviewPost review);
 
-    @POST("review/me/post")
+    @POST("review/mine/post")
     Call<ReviewResponseDTO> sendCustomerReview(@Body ReviewPost review);
 
     @GET("review/reviews/{productId}")
