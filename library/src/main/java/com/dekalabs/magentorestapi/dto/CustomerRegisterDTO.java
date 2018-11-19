@@ -1,6 +1,7 @@
 package com.dekalabs.magentorestapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
@@ -50,6 +51,7 @@ public class CustomerRegisterDTO {
         @JsonProperty("website_id")
         private Long websiteId = DEFAULT_WEBSITE_ID;
 
+        @JsonIgnore
         private boolean isSubscribed;
 
         public String getBirthdate() {
@@ -116,7 +118,7 @@ public class CustomerRegisterDTO {
             this.telephone = telephone;
         }
 
-        @JsonSetter("extension_attributes")
+        @JsonGetter("extension_attributes")
         private Map<String, Object> setExtensionAttibutes() {
             Map<String, Object> map = new HashMap<>();
 

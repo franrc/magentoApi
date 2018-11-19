@@ -258,8 +258,13 @@ public abstract class DKRestService<IFSERVICE> {
                                 else
                                     callback.onError(response.code(), response.message());
                             } catch (IOException e) {
-                                e.printStackTrace();
-                                Log.e("DKRestService", "Parsing Magento Error: " + e.getMessage());
+                                    try {
+                                        MagentoRegisterError magentoRegError = Jackson.DEFAULT_MAPPER.readValue(response.body().toString(), MagentoRegisterError.class);
+                                        callback.onError(responseCode, magentoRegError.getError());
+                                    } catch (IOException e1) {
+                                        Log.e("DKRestService", "Parsing Magento Error: " + e1.getMessage());
+                                        callback.onError(response.code(), response.message());
+                                    }
 
                             } finally {
                                 callback.onFinish();
@@ -318,20 +323,8 @@ public abstract class DKRestService<IFSERVICE> {
                                 callback.onResults(magentoResponse);
 
                             } catch (Exception e) {
-
-                                try {
-                                    MagentoRegisterError magentoRegError = Jackson.DEFAULT_MAPPER.readValue(response.body().toString(), MagentoRegisterError.class);
-                                    MagentoListResponse<ServerType> magentoResponse = new MagentoListResponse<>();
-
-                                    MagentoError magentoError = new MagentoError();
-                                    magentoError.setMessage(magentoRegError.getError());
-                                    magentoResponse.setError(magentoError);
-
-                                    callback.onResults(magentoResponse);
-                                } catch (IOException e1) {
                                     Log.e("DKRestService", "Parsing Magento Error: " + e1.getMessage());
                                     callback.onError(response.code(), response.message());
-                                }
                             }
                             finally {
                                 callback.onFinish();
