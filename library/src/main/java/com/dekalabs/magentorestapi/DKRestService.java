@@ -250,7 +250,7 @@ public abstract class DKRestService<IFSERVICE> {
                             callback.onFinish();
                         }
                         else {
-                            final String errorBody = response.errorBody().toString();
+                            final String errorBody = response.body().toString();
 
                             try {
                                 MagentoError magentoError = Jackson.DEFAULT_MAPPER.readValue(errorBody, MagentoError.class);
