@@ -39,6 +39,8 @@ public class Customer extends RealmObject implements Parcelable {
     @JsonProperty("created_in")
     private String createdIn;
 
+    private String telephone;
+
     private String dob;
     private String email;
     private String firstname;
@@ -234,6 +236,7 @@ public class Customer extends RealmObject implements Parcelable {
         dest.writeValue(this.storeId);
         dest.writeString(this.taxvat);
         dest.writeInt(this.websiteId);
+        dest.writeString(this.telephone);
     }
 
     public Customer() {
@@ -261,6 +264,7 @@ public class Customer extends RealmObject implements Parcelable {
         this.storeId = (Long) in.readValue(Long.class.getClassLoader());
         this.taxvat = in.readString();
         this.websiteId = in.readInt();
+        this.telephone = in.readString();
     }
 
     public static final Parcelable.Creator<Customer> CREATOR = new Parcelable.Creator<Customer>() {

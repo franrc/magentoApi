@@ -33,14 +33,16 @@ public class CustomerRegisterDTO {
     public static final class Customer {
 
         private static final Long DEFAULT_WEBSITE_ID = 2L;
-        private static final Long DEFAULT_STORE_ID = 2L;
+        private static final Long DEFAULT_STORE_ID = 1L;
 
         @JsonProperty("dob")
         private String birthdate;
 
         private String email;
-        private String firsname;
+        private String firstname;
         private String lastname;
+
+        private String telephone;
 
         @JsonProperty("store_id")
         private Long storeId = DEFAULT_STORE_ID;
@@ -66,12 +68,12 @@ public class CustomerRegisterDTO {
             this.email = email;
         }
 
-        public String getFirsname() {
-            return firsname;
+        public String getFirstname() {
+            return firstname;
         }
 
-        public void setFirsname(String firsname) {
-            this.firsname = firsname;
+        public void setFirstname(String firstname) {
+            this.firstname = firstname;
         }
 
         public String getLastname() {
@@ -104,6 +106,14 @@ public class CustomerRegisterDTO {
 
         public void setStoreId(Long storeId) {
             this.storeId = storeId;
+        }
+
+        public String getTelephone() {
+            return telephone;
+        }
+
+        public void setTelephone(String telephone) {
+            this.telephone = telephone;
         }
 
         @JsonSetter("extension_attributes")
