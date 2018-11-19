@@ -248,10 +248,6 @@ public abstract class DKRestService<IFSERVICE> {
                             callback.onResults(results);
                             callback.onFinish();
                         }
-                        else if(response.code() == 401) {
-                            EventBus.getDefault().post(new TokenException());
-                            return;
-                        }
                         else {
                             try {
                                 MagentoError magentoError = Jackson.DEFAULT_MAPPER.readValue(response.errorBody().string(), MagentoError.class);
