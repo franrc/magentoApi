@@ -1,16 +1,15 @@
 package com.dekalabs.magentorestapi;
 
-import android.app.Service;
-
 import com.dekalabs.magentorestapi.dto.AddressDTO;
 import com.dekalabs.magentorestapi.dto.Block;
 import com.dekalabs.magentorestapi.dto.CartItemDto;
 import com.dekalabs.magentorestapi.dto.CountryRegion;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.CustomerEmailCheckerDTO;
+import com.dekalabs.magentorestapi.dto.CustomerLoginDTO;
+import com.dekalabs.magentorestapi.dto.CustomerRegisterDTO;
 import com.dekalabs.magentorestapi.dto.DeliveryNotesDto;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
-import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.dto.PlaceOrderDTO;
 import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
@@ -36,8 +35,6 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
-import retrofit2.http.Field;
-import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -97,6 +94,9 @@ public interface MagentoService {
     @POST("review/guest/post")
     Call<ReviewResponseDTO> sendGuestReview(@Body ReviewPost review);
 
+    @POST("review/me/post")
+    Call<ReviewResponseDTO> sendCustomerReview(@Body ReviewPost review);
+
     @GET("review/reviews/{productId}")
     Call<List<ReviewItem>> getProductReviews(@Path("productId") Long productId, @QueryMap Map<String, String> params);
 
@@ -119,14 +119,26 @@ public interface MagentoService {
     @POST("guest-carts")
     Call<String> createGuestCart();
 
+    @POST("carts/mine")
+    Call<String> createCustomerCart();
+
     @GET("guest-carts/{cartIdentifier}")
     Call<ShoppingCart> getGuestShoppingCartByIdentifier(@Path("cartIdentifier") String id);
+
+    @GET("carts/mine")
+    Call<ShoppingCart> getCustomerShoppingCart();
 
     @POST("guest-carts/{cartIdentifier}/estimate-shipping-methods")
     Call<List<ShippingMethod>> getGuestShippingMethods(@Path("cartIdentifier") String id, @Body AddressDTO address);
 
+    @POST("carts/mine/estimate-shipping-methods")
+    Call<List<ShippingMethod>> getCustomerShippingMethods(@Body AddressDTO address);
+
     @GET("guest-carts/{cartIdentifier}/payment-methods")
     Call<List<PaymentMethod>> getGuestPaymentMethods(@Path("cartIdentifier") String cartId);
+
+    @GET("carts/mine/payment-methods")
+    Call<List<PaymentMethod>> getCustomerPaymentMethods();
 
     @GET
     Call<ResponseBody> executeUrl(@Url String url);
@@ -134,14 +146,26 @@ public interface MagentoService {
     @POST("guest-carts/{cartIdentifier}/items")
     Call<CartItem> addItemToGuestCart(@Path("cartIdentifier") String cartId, @Body CartItemDto cartItem);
 
+    @POST("carts/mine/items")
+    Call<CartItem> addItemToCustomerCart(@Body CartItemDto cartItem);
+
     @POST("guest-carts/{cartIdentifier}/shipping-information")
     Call<ShoppingCart> getGuestShippingInformation(@Path("cartIdentifier") String id, @Body ShippingAddressDTO dto);
+
+    @POST("carts/mine/shipping-information")
+    Call<ShoppingCart> getCustomerShippingInformation(@Body ShippingAddressDTO dto);
 
     @GET("guest-carts/{cartIdentifier}/totals")
     Call<CartTotals> getGuestCartTotals(@Path("cartIdentifier") String id);
 
+    @GET("carts/mine/totals")
+    Call<CartTotals> getCustomerCartTotals();
+
     @PUT("guest-carts/{cartIdentifier}/coupons/{coupon}")
-    Call<Boolean> applyCoupon(@Path("cartIdentifier") String cartId, @Path("coupon") String coupon);
+    Call<Boolean> applyGuestCoupon(@Path("cartIdentifier") String cartId, @Path("coupon") String coupon);
+
+    @PUT("carts/mine/coupons/{coupon}")
+    Call<Boolean> applyCustomerCoupon(@Path("coupon") String coupon);
 
     @POST("customers/isEmailAvailable")
     Call<Boolean> isEmailAvailable(@Body CustomerEmailCheckerDTO dto);
@@ -149,19 +173,51 @@ public interface MagentoService {
     @POST("guest-carts/{cartIdentifier}/billing-address")
     Call<String> postGuestBillingAddress(@Path("cartIdentifier") String cartId, @Body Address billingAddress);
 
+    @POST("carts/mine/billing-address")
+    Call<String> postCustomerBillingAddress(@Body Address billingAddress);
+
     @PUT("guest-carts/{cartIdentifier}/items/{itemId}")
     Call<CartItem> updateGuestCartItem(@Path("cartIdentifier") String cartId, @Path("itemId") Long itemId, @Body CartItemDto dto);
+
+    @PUT("carts/mine/items/{itemId}")
+    Call<CartItem> updateCustomerCartItem(@Path("itemId") Long itemId, @Body CartItemDto dto);
 
     @DELETE("guest-carts/{cartIdentifier}/items/{itemId}")
     Call<Boolean> deleteGuestCartItem(@Path("cartIdentifier") String cartId, @Path("itemId") Long itemId);
 
+    @DELETE("carts/mine/items/{itemId}")
+    Call<Boolean> deleteCustomerCartItem(@Path("itemId") Long itemId);
+
     @PUT("guest-carts/{cartIdentifier}/set-order-comment")
-    Call<ResponseBody> setDeliveryNotes(@Path("cartIdentifier") String cartId, @Body DeliveryNotesDto dto);
+    Call<ResponseBody> setGuestDeliveryNotes(@Path("cartIdentifier") String cartId, @Body DeliveryNotesDto dto);
+
+    @PUT("carts/mine/set-order-comment")
+    Call<ResponseBody> setCustomerDeliveryNotes(@Body DeliveryNotesDto dto);
 
     @POST("guest-carts/{cartIdentifier}/payment-information")
-    Call<String> placeOrder(@Path("cartIdentifier") String cartId, @Body PlaceOrderDTO dto);
+    Call<String> placeGuestOrder(@Path("cartIdentifier") String cartId, @Body PlaceOrderDTO dto);
+
+    @POST("carts/me/payment-information")
+    Call<String> placeCustomerOrder(@Body PlaceOrderDTO dto);
 
     @GET("directory/countries")
     Call<List<CountryRegion>> getCountries();
+
+
+    /*** CUSTOMER ***/
+    @POST("customers/")
+    Call<Customer> registerCustomer(@Body CustomerRegisterDTO body);
+
+    @POST("integration/customer/token")
+    Call<String> loginCustomer(@Body CustomerLoginDTO dto);
+
+    @GET("customers/me")
+    Call<Customer> getCurrentCustomerData();
+
+    @GET("customers/me/shippingAddress")
+    Call<List<Address>> getCustomerShippingAddresses();
+
+    @GET("customers/me/billingAddress")
+    Call<List<Address>> getCustomerBillingAddresses();
 
 }

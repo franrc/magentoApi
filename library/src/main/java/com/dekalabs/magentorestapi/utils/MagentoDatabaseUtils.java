@@ -5,13 +5,12 @@ import com.dekalabs.magentorestapi.pojo.Address;
 import com.dekalabs.magentorestapi.pojo.AttributeOption;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
+import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
 import com.dekalabs.magentorestapi.pojo.WishList;
 import com.dekalabs.magentorestapi.pojo.cart.CartItem;
 import com.dekalabs.magentorestapi.pojo.cart.CartTotals;
 import com.dekalabs.magentorestapi.pojo.cart.Currency;
-import com.dekalabs.magentorestapi.pojo.cart.PaymentMethod;
-import com.dekalabs.magentorestapi.pojo.cart.ShippingMethod;
 import com.dekalabs.magentorestapi.pojo.cart.ShoppingCart;
 
 import java.util.Arrays;
@@ -327,6 +326,12 @@ public class MagentoDatabaseUtils {
         realm.close();
     }
 
+    public void saveAddresses(List<Address> addresses) {
+        for(Address address : addresses) {
+            saveAddress(address);
+        }
+    }
+
     public void saveAddress(Address address) {
         if(address == null) return;
 
@@ -362,6 +367,46 @@ public class MagentoDatabaseUtils {
 
         realm.commitTransaction();
         realm.close();
+    }
+
+    public void saveCustomer(Customer customer) {
+        Realm realm = getRealmInstance();
+        realm.beginTransaction();
+
+        RealmResults<Customer> customers = realm.where(Customer.class).findAll();
+
+        if(customers != null)
+            customers.deleteAllFromRealm();
+
+        realm.copyToRealm(customer);
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    public void deleteCustomer(Long customerID) {
+        Realm realm = getRealmInstance();
+        realm.beginTransaction();
+
+        Customer customer = realm.where(Customer.class).equalTo("id", customerID).findFirst();
+
+        if(customer != null)
+            customer.deleteFromRealm();
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    public Customer getCustomer(Long customerId) {
+        Realm realm = getRealmInstance();
+
+        Customer customer = realm.where(Customer.class).equalTo("id", customerId).findFirst();
+
+        if(customer != null)
+            customer = realm.copyFromRealm(customer);
+
+        realm.close();
+        return customer;
     }
 
     private <DATA extends RealmObject> DATA copyFromRealm(Realm realm, DATA result, boolean closeRealm) {

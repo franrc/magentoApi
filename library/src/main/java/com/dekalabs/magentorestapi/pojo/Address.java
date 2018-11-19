@@ -56,6 +56,12 @@ public class Address extends RealmObject implements Parcelable {
     @JsonProperty("vat_id")
     private String vatId;
 
+    @JsonProperty("default_billing")
+    private boolean defaultBilling;
+
+    @JsonProperty("default_shipping")
+    private boolean defaultShipping;
+
     public Long getId() {
         return id;
     }
@@ -271,6 +277,22 @@ public class Address extends RealmObject implements Parcelable {
         this.sameAsBilling = sameAsBilling;
     }
 
+    public boolean isDefaultBilling() {
+        return defaultBilling;
+    }
+
+    public void setDefaultBilling(boolean defaultBilling) {
+        this.defaultBilling = defaultBilling;
+    }
+
+    public boolean isDefaultShipping() {
+        return defaultShipping;
+    }
+
+    public void setDefaultShipping(boolean defaultShipping) {
+        this.defaultShipping = defaultShipping;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -300,6 +322,8 @@ public class Address extends RealmObject implements Parcelable {
         dest.writeString(this.vatId);
         dest.writeString(this.email);
         dest.writeInt(this.sameAsBilling);
+        dest.writeInt(this.defaultBilling ? 1 : 0);
+        dest.writeInt(this.defaultShipping ? 1 : 0);
     }
 
     public Address() {
@@ -328,6 +352,8 @@ public class Address extends RealmObject implements Parcelable {
         this.vatId = in.readString();
         this.email = in.readString();
         this.sameAsBilling = in.readInt();
+        this.defaultBilling = in.readInt() == 1;
+        this.defaultShipping = in.readInt() == 1;
     }
 
     public static final Creator<Address> CREATOR = new Creator<Address>() {
@@ -372,7 +398,7 @@ public class Address extends RealmObject implements Parcelable {
         if(postalCodeCity.length() > 0)
             postalCodeCity += " ";
 
-        postalCodeCity += city;
+        postalCodeCity += region + " " + city;
 
         return postalCodeCity;
     }

@@ -10,9 +10,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class Customer extends RealmObject implements Parcelable {
 
+    @PrimaryKey
     private Long id;
 
     @JsonProperty("group_id")
