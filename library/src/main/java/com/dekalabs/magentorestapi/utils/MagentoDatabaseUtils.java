@@ -409,6 +409,18 @@ public class MagentoDatabaseUtils {
         return customer;
     }
 
+    public Customer getCurrentCustomer() {
+        Realm realm = getRealmInstance();
+
+        Customer customer = realm.where(Customer.class).findFirst();
+
+        if(customer != null)
+            customer = realm.copyFromRealm(customer);
+
+        realm.close();
+        return customer;
+    }
+
     private <DATA extends RealmObject> DATA copyFromRealm(Realm realm, DATA result, boolean closeRealm) {
         DATA copiedData = null;
 
@@ -419,6 +431,15 @@ public class MagentoDatabaseUtils {
             realm.close();
 
         return copiedData;
+    }
+
+    public void clearCustomer() {
+        Customer c = getCurrentCustomer();
+
+        if(c != null)
+            deleteCustomer(c.getId());
+
+        clearCheckoutDatabase(true);
     }
 
     public void clearCheckoutDatabase(boolean deleteAlsoAddresses) {

@@ -1193,6 +1193,10 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     }
 
     /** CUSTOMER **/
+    public void isLoggedCustomer(ServiceCallback<Boolean> callback) {
+        callback.onResults(new MagentoDatabaseUtils().getCurrentCustomer() != null);
+        callback.onFinish();
+    }
     public void createCustomer(CustomerRegisterDTO customer, ServiceCallback<Customer> callback) {
         ServiceCallback<Customer> firstCallback = new ServiceCallback<Customer>() {
             @Override
