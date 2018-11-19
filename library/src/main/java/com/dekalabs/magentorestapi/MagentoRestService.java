@@ -1231,6 +1231,8 @@ public class MagentoRestService extends DKRestService<MagentoService> {
             @Override
             public void onResults(String results) {
                 if(results != null) {
+                    new MagentoDatabaseUtils().clearCustomer();
+
                     MagentoSettings.saveCustomerToken(currentContext, results);
 
                     new CustomerRestService(currentContext).getCurrentCustomerData(callback);
