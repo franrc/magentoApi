@@ -32,7 +32,7 @@ public class MagentoRegisterError {
         if(parameters == null) return message;
 
         for(int i = 1; i <= parameters.size(); i++) {
-            message.replace("%"+i, parameters.get(i-1));
+            message = message.replace("%"+i, parameters.get(i-1));
         }
 
         return message;
