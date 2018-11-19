@@ -197,7 +197,7 @@ public interface MagentoService {
     @POST("guest-carts/{cartIdentifier}/payment-information")
     Call<String> placeGuestOrder(@Path("cartIdentifier") String cartId, @Body PlaceOrderDTO dto);
 
-    @POST("carts/me/payment-information")
+    @POST("carts/mine/payment-information")
     Call<String> placeCustomerOrder(@Body PlaceOrderDTO dto);
 
     @GET("directory/countries")
