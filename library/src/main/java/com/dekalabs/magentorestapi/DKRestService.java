@@ -8,6 +8,7 @@ import com.dekalabs.magentorestapi.busevents.NotInternetException;
 import com.dekalabs.magentorestapi.busevents.TokenException;
 import com.dekalabs.magentorestapi.dto.MagentoError;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
+import com.dekalabs.magentorestapi.dto.MagentoRegisterError;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.utils.ServiceUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -316,9 +317,21 @@ public abstract class DKRestService<IFSERVICE> {
 
                                 callback.onResults(magentoResponse);
 
-                            } catch (IOException e) {
-                                Log.e("DKRestService", "Parsing Magento Error: " + e.getMessage());
-                                callback.onError(response.code(), response.message());
+                            } catch (Exception e) {
+
+                                try {
+                                    MagentoRegisterError magentoRegError = Jackson.DEFAULT_MAPPER.readValue(response.body().toString(), MagentoRegisterError.class);
+                                    MagentoListResponse<ServerType> magentoResponse = new MagentoListResponse<>();
+
+                                    MagentoError magentoError = new MagentoError();
+                                    magentoError.setMessage(magentoRegError.getError());
+                                    magentoResponse.setError(magentoError);
+
+                                    callback.onResults(magentoResponse);
+                                } catch (IOException e1) {
+                                    Log.e("DKRestService", "Parsing Magento Error: " + e1.getMessage());
+                                    callback.onError(response.code(), response.message());
+                                }
                             }
                             finally {
                                 callback.onFinish();
