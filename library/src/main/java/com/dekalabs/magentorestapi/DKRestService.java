@@ -42,7 +42,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
  */
 public abstract class DKRestService<IFSERVICE> {
 
-    private static boolean isOnDebug;
+    protected static boolean isOnDebug;
 
     public static void setIsOnDebug(boolean isDebug) {
         isOnDebug = isDebug;

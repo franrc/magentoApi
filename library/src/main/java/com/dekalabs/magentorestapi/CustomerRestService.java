@@ -1,6 +1,7 @@
 package com.dekalabs.magentorestapi;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
 import com.dekalabs.magentorestapi.config.MagentoSettings;
@@ -50,6 +51,9 @@ public class CustomerRestService extends MagentoRestService {
         super(context);
 
         customerToken = MagentoSettings.getCustomerToken(currentContext);
+
+        if(isOnDebug)
+            Log.i("Magento", "CUSTOMER TOKEN: " + customerToken);
     }
 
     @Override
