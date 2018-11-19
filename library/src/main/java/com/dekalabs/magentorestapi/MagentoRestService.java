@@ -14,6 +14,7 @@ import com.dekalabs.magentorestapi.dto.CountryRegion;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.CustomerEmailCheckerDTO;
 import com.dekalabs.magentorestapi.dto.CustomerLoginDTO;
+import com.dekalabs.magentorestapi.dto.CustomerLoginForSessionDTO;
 import com.dekalabs.magentorestapi.dto.CustomerRegisterDTO;
 import com.dekalabs.magentorestapi.dto.DeliveryNotesDto;
 import com.dekalabs.magentorestapi.dto.Filter;
@@ -94,16 +95,15 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                     Request request = requestBuilder.build();
                     Response originalResponse = chain.proceed(request);
 
-                if (!originalResponse.headers("Set-Cookie").isEmpty()) {
+                if (original.url().url().toString().contains("customers/login") && !originalResponse.headers("Set-Cookie").isEmpty()) {
 
                     String cookieName = "PHPSESSID=";
 
                     for (String header : originalResponse.headers("Set-Cookie")) {
                         if(header.contains(cookieName)) {
-                            String sessID = header.substring(header.indexOf(cookieName) + cookieName.length(), header.indexOf(";"));
-                            Log.i("Magento", "SESSION ID: " + sessID);
+                            Log.i("Magento", "SESSION ID: " + header);
 
-                            MagentoSettings.saveSessionIdCookie(currentContext, sessID);
+                            MagentoSettings.saveSessionIdCookie(currentContext, header);
                             break;
                         }
                     }
@@ -1255,7 +1255,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
                     MagentoSettings.saveCustomerToken(currentContext, results);
 
-                    new CustomerRestService(currentContext).getCurrentCustomerData(callback);
+                    loginForSession(email, pass, callback);
                 }
                 else {
                     callback.onFinish();
@@ -1270,5 +1270,33 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         };
 
         executeSimpleOnline(firstCallback, service.loginCustomer(dto));
+    }
+
+
+    public void loginForSession(String email, String pass, ServiceCallback<Customer> callback) {
+        ServiceCallback<Customer> firstCallback = new ServiceCallback<Customer>() {
+            @Override
+            public void onResults(Customer results) {
+                if(results != null) {
+
+                    MagentoDatabaseUtils dbUtils = new MagentoDatabaseUtils();
+                    dbUtils.saveCustomer(results);
+                }
+
+                callback.onResults(results);
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+            }
+
+            @Override
+            public void onFinish() {
+                callback.onFinish();
+            }
+        };
+
+        executeSimpleOnline(firstCallback, service.loginForSession(new CustomerLoginForSessionDTO(email, pass)));
     }
 }

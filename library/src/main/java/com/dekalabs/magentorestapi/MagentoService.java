@@ -7,6 +7,7 @@ import com.dekalabs.magentorestapi.dto.CountryRegion;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.CustomerEmailCheckerDTO;
 import com.dekalabs.magentorestapi.dto.CustomerLoginDTO;
+import com.dekalabs.magentorestapi.dto.CustomerLoginForSessionDTO;
 import com.dekalabs.magentorestapi.dto.CustomerRegisterDTO;
 import com.dekalabs.magentorestapi.dto.DeliveryNotesDto;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
@@ -210,6 +211,9 @@ public interface MagentoService {
 
     @POST("integration/customer/token")
     Call<String> loginCustomer(@Body CustomerLoginDTO dto);
+
+    @POST("customers/login")
+    Call<Customer> loginForSession(@Body CustomerLoginForSessionDTO dto);
 
     @GET("customers/me")
     Call<Customer> getCurrentCustomerData();
