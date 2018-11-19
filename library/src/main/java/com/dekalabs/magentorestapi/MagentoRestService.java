@@ -46,9 +46,11 @@ import com.dekalabs.magentorestapi.utils.FinalInteger;
 import com.dekalabs.magentorestapi.utils.MagentoDatabaseUtils;
 import com.dekalabs.magentorestapi.utils.PreferencesCacheManager;
 
+import java.io.Console;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -90,7 +92,25 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                             .method(original.method(), original.body());
 
                     Request request = requestBuilder.build();
-                    return chain.proceed(request);
+                    Response originalResponse = chain.proceed(request);
+
+                if (!originalResponse.headers("Set-Cookie").isEmpty()) {
+
+                    String cookieName = "PHPSESSID=";
+
+                    for (String header : originalResponse.headers("Set-Cookie")) {
+                        if(header.contains(cookieName)) {
+                            String sessID = header.substring(header.indexOf(cookieName) + cookieName.length(), header.indexOf(";"));
+                            Log.i("Magento", "SESSION ID: " + sessID);
+
+                            MagentoSettings.saveSessionIdCookie(currentContext, sessID);
+                            break;
+                        }
+                    }
+
+                }
+
+                return originalResponse;
             }
         });
     }
