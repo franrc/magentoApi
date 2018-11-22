@@ -25,9 +25,10 @@ public class CartItem extends RealmObject implements Parcelable {
     public String name;
 
     public Integer price;
-    @JsonProperty("product_type")
 
+    @JsonProperty("product_type")
     public String productType;
+
     @JsonProperty("quote_id")
     public String quoteId;
 
@@ -71,7 +72,7 @@ public class CartItem extends RealmObject implements Parcelable {
     }
 
     public Integer getPrice() {
-        return (int)Math.round(price);
+        return price != null ? Math.round(price): price;
     }
 
     public void setPrice(Integer price) {
