@@ -104,10 +104,10 @@ public class Product extends RealmObject implements Parcelable {
         this.attributeSetId = attributeSetId;
     }
 
-    public double getPrice() {
-        if(finalPrice > 0) return finalPrice;
+    public int getPrice() {
+        if(finalPrice > 0) return (int)Math.round(finalPrice);
 
-        return price;
+        return (int)Math.round(price);
     }
 
     public void setPrice(double price) {
@@ -195,7 +195,7 @@ public class Product extends RealmObject implements Parcelable {
     }
 
     public double getFinalPrice() {
-        return finalPrice;
+        return (int)Math.round(finalPrice);
     }
 
     public void setFinalPrice(double finalPrice) {

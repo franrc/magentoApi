@@ -34,7 +34,7 @@ public class CartTotals extends RealmObject implements Parcelable {
     private double shippingIncludingTax;
 
     public double getTotal() {
-        return total;
+        return (int)Math.round(total);
     }
 
     public void setTotal(double total) {
@@ -42,7 +42,7 @@ public class CartTotals extends RealmObject implements Parcelable {
     }
 
     public double getSubtotal() {
-        return subtotal;
+        return (int)Math.round(subtotal);
     }
 
     public void setSubtotal(double subtotal) {
@@ -50,7 +50,7 @@ public class CartTotals extends RealmObject implements Parcelable {
     }
 
     public double getDiscount() {
-        return discount;
+        return (int)Math.round(discount);
     }
 
     public void setDiscount(double discount) {
@@ -58,7 +58,7 @@ public class CartTotals extends RealmObject implements Parcelable {
     }
 
     public double getShippingAmount() {
-        return shippingAmount;
+        return (int)Math.round(shippingAmount);
     }
 
     public void setShippingAmount(double shippingAmount) {
@@ -66,7 +66,7 @@ public class CartTotals extends RealmObject implements Parcelable {
     }
 
     public double getShippingDiscount() {
-        return shippingDiscount;
+        return (int)Math.round(shippingDiscount);
     }
 
     public void setShippingDiscount(double shippingDiscount) {
@@ -74,7 +74,7 @@ public class CartTotals extends RealmObject implements Parcelable {
     }
 
     public double getTaxAmount() {
-        return taxAmount;
+        return (int)Math.round(taxAmount);
     }
 
     public void setTaxAmount(double taxAmount) {
@@ -82,7 +82,7 @@ public class CartTotals extends RealmObject implements Parcelable {
     }
 
     public double getShippingTax() {
-        return shippingTax;
+        return (int)Math.round(shippingTax);
     }
 
     public void setShippingTax(double shippingTax) {
@@ -90,7 +90,7 @@ public class CartTotals extends RealmObject implements Parcelable {
     }
 
     public double getShippingIncludingTax() {
-        return shippingIncludingTax;
+        return (int)Math.round(shippingIncludingTax);
     }
 
     public void setShippingIncludingTax(double shippingIncludingTax) {
