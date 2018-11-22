@@ -72,7 +72,7 @@ public class CartItem extends RealmObject implements Parcelable {
     }
 
     public Integer getPrice() {
-        return price != null ? Math.round(price): price;
+        return price != null ? Math.round(price): null;
     }
 
     public void setPrice(Integer price) {
