@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import java.util.List;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -51,7 +52,7 @@ public class Customer extends RealmObject implements Parcelable {
     private String suffix;
     private int gender;
 
-    private List<Address> addresses;
+    private RealmList<Address> addresses;
 
     @JsonProperty("store_id")
     private Long storeId;
@@ -221,12 +222,15 @@ public class Customer extends RealmObject implements Parcelable {
         this.telephone = telephone;
     }
 
-    public List<Address> getAddresses() {
+    public RealmList<Address> getAddresses() {
         return addresses;
     }
 
     public void setAddresses(List<Address> addresses) {
-        this.addresses = addresses;
+        if(addresses != null) {
+            this.addresses = new RealmList<>();
+            this.addresses.addAll(addresses);
+        }
     }
 
 
@@ -283,7 +287,13 @@ public class Customer extends RealmObject implements Parcelable {
         this.prefix = in.readString();
         this.suffix = in.readString();
         this.gender = in.readInt();
-        this.addresses = in.createTypedArrayList(Address.CREATOR);
+        List<Address> addressList = in.createTypedArrayList(Address.CREATOR);
+
+        if(addressList != null) {
+            this.addresses = new RealmList<>();
+            this.addresses.addAll(addressList);
+        }
+
         this.storeId = (Long) in.readValue(Long.class.getClassLoader());
         this.taxvat = in.readString();
         this.websiteId = in.readInt();

@@ -26,4 +26,15 @@ public class WishList extends RealmObject {
     public void setProducts(RealmList<WishListItem> products) {
         this.products = products;
     }
+
+    public boolean hasProduct(Long productId) {
+        if(products == null || productId == null) return false;
+
+        for(WishListItem item : products) {
+            if (productId.equals(item.getProductId()))
+                return true;
+        }
+
+        return false;
+    }
 }

@@ -291,13 +291,13 @@ public class MagentoDatabaseUtils {
         StreamSupport.stream(productViews)
                 .parallel()
                 .forEach(pw -> {
-                    pw.getMainProduct().setFavourite(unmanagedWishList.getProducts().contains(pw.getMainProduct().getSku()));
+                    pw.getMainProduct().setFavourite(unmanagedWishList.hasProduct(pw.getMainProduct().getId()));
 
                     if(pw.getChildren() != null && pw.getChildren().size() > 0) {
                         StreamSupport.stream(pw.getChildren())
                                 .parallel()
                                 .forEach(p -> {
-                                    p.setFavourite(unmanagedWishList.getProducts().contains(p.getSku()));
+                                    p.setFavourite(unmanagedWishList.hasProduct(p.getId()));
                                 });
                     }
                 });
@@ -326,7 +326,7 @@ public class MagentoDatabaseUtils {
 
         StreamSupport.stream(products)
                 .parallel()
-                .forEach(p -> p.setFavourite(unmanagedWishList.getProducts().contains(p.getSku())));
+                .forEach(p -> p.setFavourite(unmanagedWishList.hasProduct(p.getId())));
 
         realm.close();
     }
