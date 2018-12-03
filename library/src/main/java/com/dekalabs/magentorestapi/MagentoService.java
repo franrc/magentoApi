@@ -22,6 +22,8 @@ import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
+import com.dekalabs.magentorestapi.pojo.WishList;
+import com.dekalabs.magentorestapi.pojo.WishListItem;
 import com.dekalabs.magentorestapi.pojo.cart.CartItem;
 import com.dekalabs.magentorestapi.pojo.cart.CartTotals;
 import com.dekalabs.magentorestapi.pojo.cart.PaymentMethod;
@@ -63,7 +65,7 @@ public interface MagentoService {
     Call<Customer> getMe();
 
     @PUT("customers/me")
-    Call<ResponseBody> updateCustomer(@Body Customer customer);
+    Call<Customer> updateCustomer(@Body Customer customer);
 
     @GET("categories/list")
     Call<MagentoListResponse<Category>> getCategoriesByParent(@QueryMap Map<String, String> parameters);
@@ -195,10 +197,10 @@ public interface MagentoService {
     @PUT("carts/mine/set-order-comment")
     Call<ResponseBody> setCustomerDeliveryNotes(@Body DeliveryNotesDto dto);
 
-    @POST("guest-carts/{cartIdentifier}/payment-information")
+    @POST("app/guest-carts/{cartIdentifier}/payment-information")
     Call<String> placeGuestOrder(@Path("cartIdentifier") String cartId, @Body PlaceOrderDTO dto);
 
-    @POST("carts/mine/payment-information")
+    @POST("app/carts/mine/payment-information")
     Call<String> placeCustomerOrder(@Body PlaceOrderDTO dto);
 
     @GET("directory/countries")
@@ -224,4 +226,12 @@ public interface MagentoService {
     @GET("customers/me/billingAddress")
     Call<List<Address>> getCustomerBillingAddresses();
 
+    @GET("app/wishlist/items")
+    Call<List<WishListItem>> getWishlistItems();
+
+    @POST("app/wishlist/add/{productId}")
+    Call<Boolean> addItemToWishList(@Path("productId") Long productId);
+
+    @DELETE("app/wishlist/delete/{wishlistItemId}")
+    Call<Boolean> deleteItemFromWishlist(@Path("wishlistItemId") Long item);
 }

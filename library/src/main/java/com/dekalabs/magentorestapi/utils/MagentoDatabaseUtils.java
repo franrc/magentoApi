@@ -8,6 +8,7 @@ import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
 import com.dekalabs.magentorestapi.pojo.WishList;
+import com.dekalabs.magentorestapi.pojo.WishListItem;
 import com.dekalabs.magentorestapi.pojo.cart.CartItem;
 import com.dekalabs.magentorestapi.pojo.cart.CartTotals;
 import com.dekalabs.magentorestapi.pojo.cart.Currency;
@@ -18,6 +19,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.RealmModule;
@@ -179,20 +181,21 @@ public class MagentoDatabaseUtils {
         return copyFromRealm(realm, attr, true);
     }
 
-    public void addProductToWishList(String productSku) {
-        if(productSku == null) return;
+    public void createWishList(List<WishListItem> items) {
+        if(items == null) return;
 
         Realm realm = getRealmInstance();
         realm.beginTransaction();
 
         WishList wishList = realm.where(WishList.class).findFirst();
 
-        if(wishList == null) {
-            wishList = new WishList();
-            wishList.setId(1L);
-        }
+        if(wishList != null) wishList.deleteFromRealm();
 
-        wishList.getProducts().add(productSku);
+        wishList = new WishList();
+        RealmList<WishListItem> list = new RealmList<>();
+        list.addAll(items);
+
+        wishList.setProducts(list);
 
         realm.copyToRealmOrUpdate(wishList);
 
@@ -200,26 +203,47 @@ public class MagentoDatabaseUtils {
         realm.close();
     }
 
-    public boolean removeProductFromWishList(String productSku) {
-        if(productSku == null) return false;
+//    public void addProductToWishList(WishListItem item) {
+//        if(item == null) return;
+//
+//        Realm realm = getRealmInstance();
+//        realm.beginTransaction();
+//
+//        WishList wishList = realm.where(WishList.class).findFirst();
+//
+//        if(wishList == null) {
+//            wishList = new WishList();
+//            wishList.setId(1L);
+//        }
+//
+//        wishList.getProducts().add(item);
+//
+//        realm.copyToRealmOrUpdate(wishList);
+//
+//        realm.commitTransaction();
+//        realm.close();
+//    }
 
-        Realm realm = getRealmInstance();
-        realm.beginTransaction();
-
-        WishList wishList = realm.where(WishList.class).findFirst();
-
-        boolean removed = false;
-
-        if(wishList != null) {
-            removed = wishList.getProducts().remove(productSku);
-            realm.copyToRealmOrUpdate(wishList);
-        }
-
-        realm.commitTransaction();
-        realm.close();
-
-        return removed;
-    }
+//    public boolean removeProductFromWishList(WishListItem item) {
+//        if(item == null) return false;
+//
+//        Realm realm = getRealmInstance();
+//        realm.beginTransaction();
+//
+//        WishList wishList = realm.where(WishList.class).findFirst();
+//
+//        boolean removed = false;
+//
+//        if(wishList != null) {
+//            removed = wishList.getProducts().remove(item);
+//            realm.copyToRealmOrUpdate(wishList);
+//        }
+//
+//        realm.commitTransaction();
+//        realm.close();
+//
+//        return removed;
+//    }
 
     public WishList getWishList() {
         Realm realm = getRealmInstance();
@@ -231,6 +255,18 @@ public class MagentoDatabaseUtils {
 
         realm.close();
         return wishList;
+    }
+
+    public Long getWishlistItemIdByProduct(Long productId) {
+        if(productId == null) return null;
+
+        Realm realm = getRealmInstance();
+        WishListItem item = realm.where(WishListItem.class).equalTo("productId", productId).findFirst();
+
+        if(item == null) return null;
+
+        return item.getId();
+
     }
 
     public void markProductViewAsFavourite(ProductView productView) {

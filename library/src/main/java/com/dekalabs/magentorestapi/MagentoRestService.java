@@ -7,55 +7,38 @@ import android.util.Log;
 
 import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
 import com.dekalabs.magentorestapi.config.MagentoSettings;
-import com.dekalabs.magentorestapi.dto.AddressDTO;
 import com.dekalabs.magentorestapi.dto.Block;
-import com.dekalabs.magentorestapi.dto.CartItemDto;
 import com.dekalabs.magentorestapi.dto.CountryRegion;
 import com.dekalabs.magentorestapi.dto.CustomAttributeViewDTO;
 import com.dekalabs.magentorestapi.dto.CustomerEmailCheckerDTO;
 import com.dekalabs.magentorestapi.dto.CustomerLoginDTO;
 import com.dekalabs.magentorestapi.dto.CustomerLoginForSessionDTO;
 import com.dekalabs.magentorestapi.dto.CustomerRegisterDTO;
-import com.dekalabs.magentorestapi.dto.DeliveryNotesDto;
 import com.dekalabs.magentorestapi.dto.Filter;
 import com.dekalabs.magentorestapi.dto.MagentoListResponse;
 import com.dekalabs.magentorestapi.dto.MagentoResponse;
 import com.dekalabs.magentorestapi.dto.Pagination;
-import com.dekalabs.magentorestapi.dto.PaymentAssignementMethodDTO;
-import com.dekalabs.magentorestapi.dto.PlaceOrderDTO;
 import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ProductView;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
-import com.dekalabs.magentorestapi.dto.ShippingAddressDTO;
 import com.dekalabs.magentorestapi.handler.FinishHandler;
-import com.dekalabs.magentorestapi.pojo.Address;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
-import com.dekalabs.magentorestapi.pojo.WishList;
-import com.dekalabs.magentorestapi.pojo.cart.CartItem;
-import com.dekalabs.magentorestapi.pojo.cart.CartTotals;
-import com.dekalabs.magentorestapi.pojo.cart.PaymentMethod;
-import com.dekalabs.magentorestapi.pojo.cart.ShippingMethod;
-import com.dekalabs.magentorestapi.pojo.cart.ShoppingCart;
 import com.dekalabs.magentorestapi.pojo.review.ReviewItem;
 import com.dekalabs.magentorestapi.utils.FilterOptions;
 import com.dekalabs.magentorestapi.utils.FinalInteger;
 import com.dekalabs.magentorestapi.utils.MagentoDatabaseUtils;
 import com.dekalabs.magentorestapi.utils.PreferencesCacheManager;
 
-import java.io.Console;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Nonnull;
 
 import java8.util.stream.StreamSupport;
 import okhttp3.Interceptor;
@@ -140,7 +123,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
         executeOnline(callback, service.getMe());
     }
 
-    public void updateCustomer(Customer customer, ServiceCallbackOnlyOnServiceResults<MagentoResponse<ResponseBody>> callback) {
+    public void updateCustomer(Customer customer, ServiceCallbackOnlyOnServiceResults<MagentoResponse<Customer>> callback) {
 
         executeOnline(callback, service.updateCustomer(customer));
     }
@@ -660,47 +643,6 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
     public void sendGuestReview(ReviewPost reviewPost, ServiceCallback<ReviewResponseDTO> callback) {
         executeSimpleOnline(callback, service.sendGuestReview(reviewPost));
-    }
-
-
-    public void addProductToWishList(String productSku, ServiceCallback<Boolean> callback) {
-        new MagentoDatabaseUtils().addProductToWishList(productSku);
-
-        callback.onResults(true);
-        callback.onFinish();
-    }
-
-    public void removeProductFromWishList(String productSku, ServiceCallback<Boolean> callback) {
-        callback.onResults(new MagentoDatabaseUtils().removeProductFromWishList(productSku));
-        callback.onFinish();
-    }
-
-    public void getWishList(ServiceCallback<WishList> callback) {
-        WishList wishList = new MagentoDatabaseUtils().getWishList();
-
-        if(wishList == null || wishList.getProducts().size() == 0) {
-            callback.onResults(wishList);
-            callback.onFinish();
-        }
-        else {
-            StreamSupport.stream(wishList.getProducts()).parallel()
-                    .forEach(sku -> {
-                        getProductDetail(sku, new ServiceCallback<ProductView>() {
-                            @Override
-                            public void onResults(ProductView results) {
-                                wishList.getProductList().add(results.getMainProduct());  //Always main product cause they are always children
-                            }
-
-                            @Override
-                            public void onFinish() {
-                                if(wishList.getProducts().size() == wishList.getProductList().size()) {
-                                    callback.onResults(wishList);
-                                    callback.onFinish();
-                                }
-                            }
-                        });
-                    });
-        }
     }
 
     /** Search **/

@@ -7,19 +7,16 @@ import com.dekalabs.magentorestapi.config.MagentoRestConfiguration;
 import com.dekalabs.magentorestapi.config.MagentoSettings;
 import com.dekalabs.magentorestapi.dto.AddressDTO;
 import com.dekalabs.magentorestapi.dto.CartItemDto;
-import com.dekalabs.magentorestapi.dto.CustomerLoginDTO;
-import com.dekalabs.magentorestapi.dto.CustomerRegisterDTO;
 import com.dekalabs.magentorestapi.dto.DeliveryNotesDto;
 import com.dekalabs.magentorestapi.dto.PaymentAssignementMethodDTO;
 import com.dekalabs.magentorestapi.dto.PlaceOrderDTO;
-import com.dekalabs.magentorestapi.dto.ProductView;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
 import com.dekalabs.magentorestapi.dto.ShippingAddressDTO;
 import com.dekalabs.magentorestapi.handler.FinishHandler;
 import com.dekalabs.magentorestapi.pojo.Address;
 import com.dekalabs.magentorestapi.pojo.Customer;
-import com.dekalabs.magentorestapi.pojo.WishList;
+import com.dekalabs.magentorestapi.pojo.WishListItem;
 import com.dekalabs.magentorestapi.pojo.cart.CartItem;
 import com.dekalabs.magentorestapi.pojo.cart.CartTotals;
 import com.dekalabs.magentorestapi.pojo.cart.PaymentMethod;
@@ -29,13 +26,13 @@ import com.dekalabs.magentorestapi.utils.FinalInteger;
 import com.dekalabs.magentorestapi.utils.MagentoDatabaseUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import java8.util.stream.StreamSupport;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -79,47 +76,6 @@ public class CustomerRestService extends MagentoRestService {
 
     public void sendReview(ReviewPost reviewPost, ServiceCallback<ReviewResponseDTO> callback) {
         executeSimpleOnline(callback, customerToken != null ? service.sendCustomerReview(reviewPost) : service.sendGuestReview(reviewPost));
-    }
-
-
-    public void addProductToWishList(String productSku, ServiceCallback<Boolean> callback) {
-        new MagentoDatabaseUtils().addProductToWishList(productSku);
-
-        callback.onResults(true);
-        callback.onFinish();
-    }
-
-    public void removeProductFromWishList(String productSku, ServiceCallback<Boolean> callback) {
-        callback.onResults(new MagentoDatabaseUtils().removeProductFromWishList(productSku));
-        callback.onFinish();
-    }
-
-    public void getWishList(ServiceCallback<WishList> callback) {
-        WishList wishList = new MagentoDatabaseUtils().getWishList();
-
-        if(wishList == null || wishList.getProducts().size() == 0) {
-            callback.onResults(wishList);
-            callback.onFinish();
-        }
-        else {
-            StreamSupport.stream(wishList.getProducts()).parallel()
-                    .forEach(sku -> {
-                        getProductDetail(sku, new ServiceCallback<ProductView>() {
-                            @Override
-                            public void onResults(ProductView results) {
-                                wishList.getProductList().add(results.getMainProduct());  //Always main product cause they are always children
-                            }
-
-                            @Override
-                            public void onFinish() {
-                                if(wishList.getProducts().size() == wishList.getProductList().size()) {
-                                    callback.onResults(wishList);
-                                    callback.onFinish();
-                                }
-                            }
-                        });
-                    });
-        }
     }
 
     /**** CHECKOUT *****/
@@ -451,7 +407,6 @@ public class CustomerRestService extends MagentoRestService {
         executeSimpleOnline(callback, customerToken != null ? service.setCustomerDeliveryNotes(dto) : service.setGuestDeliveryNotes(cart.getCartIdentifier(), dto));
     }
 
-
     public void placeOrder(Address billingAddress, PaymentMethod paymentMethod, String email, ServiceCallback<String> callback) {
         placeOrder(billingAddress, paymentMethod, null, email, callback);
     }
@@ -471,6 +426,48 @@ public class CustomerRestService extends MagentoRestService {
         dto.setEmail(email);
 
         executeSimpleOnline(callback, customerToken != null ? service.placeCustomerOrder(dto) : service.placeGuestOrder(cart.getCartIdentifier(), dto));
+    }
+
+    //ADDRESSES
+    public void addOrUpdateAddress(Address address, ServiceCallback<Customer> callback) {
+        executeSimpleOnline(new ServiceCallback<Customer>() {
+
+            @Override
+            public void onResults(Customer results) {
+
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+                callback.onFinish();
+            }
+
+        }, service.getCurrentCustomerData());
+    }
+
+    private void manageUserAddresses(Customer customer, Address address, ServiceCallback<Customer> callback) {
+
+        List<Address> addresses = customer.getAddresses();
+
+        if(address == null) {
+            addresses = new ArrayList<>();
+            addresses.add(address);
+        }
+        else {
+            int index = addresses.indexOf(address);
+
+            if(index != -1) {
+                addresses.remove(index);
+            }
+
+            addresses.add(address);
+        }
+
+        customer.setAddresses(addresses);
+
+        executeSimpleOnline(callback, service.updateCustomer(customer));
+
     }
 
 
@@ -609,4 +606,102 @@ public class CustomerRestService extends MagentoRestService {
 
         executeSimpleOnline(firstCallback, service.getCustomerShippingAddresses());
     }
+
+
+
+    //Wishlist
+
+    public void addProductToWishList(Long productId, ServiceCallback<Boolean> callback) {
+        executeSimpleOnline(new ServiceCallback<Boolean>() {
+
+            @Override
+            public void onResults(Boolean results) {
+                if(results) {
+
+                    generateSilentWishlist();
+
+                    callback.onResults(true);
+                    callback.onFinish();
+                }
+            }
+
+            @Override
+            public void onError(int errorCode, String message) {
+                callback.onError(errorCode, message);
+                callback.onFinish();
+            }
+
+        }, service.addItemToWishList(productId));
+    }
+
+    public void removeProductFromWishList(Long productID, ServiceCallback<Boolean> callback) {
+        Long wishlistItemId = new MagentoDatabaseUtils().getWishlistItemIdByProduct(productID);
+
+        if(wishlistItemId == null) {
+            callback.onError(-1, "");
+            callback.onFinish();
+        }
+        else {
+            executeSimpleOnline(new ServiceCallback<Boolean>() {
+
+                @Override
+                public void onResults(Boolean results) {
+                    if(results) {
+
+                        generateSilentWishlist();
+
+                        callback.onResults(true);
+                        callback.onFinish();
+                    }
+                }
+
+                @Override
+                public void onError(int errorCode, String message) {
+                    callback.onError(errorCode, message);
+                    callback.onFinish();
+                }
+
+            }, service.deleteItemFromWishlist(wishlistItemId));
+        }
+    }
+
+
+    private void generateSilentWishlist() {
+
+        executeSimpleOnline(new ServiceCallback<List<WishListItem>>() {
+
+            @Override
+            public void onResults(List<WishListItem> results) {
+                new MagentoDatabaseUtils().createWishList(results);
+            }
+
+        }, service.getWishlistItems());
+
+//        WishList wishList = new MagentoDatabaseUtils().getWishList();
+//
+//        if(wishList == null || wishList.getProducts().size() == 0) {
+//            callback.onResults(wishList);
+//            callback.onFinish();
+//        }
+//        else {
+//            StreamSupport.stream(wishList.getProducts()).parallel()
+//                    .forEach(sku -> {
+//                        getProductDetail(sku, new ServiceCallback<ProductView>() {
+//                            @Override
+//                            public void onResults(ProductView results) {
+//                                wishList.getProductList().add(results.getMainProduct());  //Always main product cause they are always children
+//                            }
+//
+//                            @Override
+//                            public void onFinish() {
+//                                if(wishList.getProducts().size() == wishList.getProductList().size()) {
+//                                    callback.onResults(wishList);
+//                                    callback.onFinish();
+//                                }
+//                            }
+//                        });
+//                    });
+//        }
+    }
+
 }

@@ -3,10 +3,21 @@ package com.dekalabs.magentorestapi.pojo.cart;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.dekalabs.magentorestapi.Jackson;
+import com.dekalabs.magentorestapi.pojo.CustomAttribute;
+import com.dekalabs.magentorestapi.pojo.ProductStock;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -110,6 +121,26 @@ public class CartItem extends RealmObject implements Parcelable {
     public void setBrand(String brand) {
         this.brand = brand;
     }
+
+
+    @SuppressWarnings("unchecked")
+    @JsonProperty("extension_attributes")
+    private void unpackExtensionAttrs(Map<String,Object> extension) {
+
+        if (extension != null) {
+            Object object = extension.get("brand");
+
+            if (object != null)
+                this.brand = object.toString();
+
+            Object imageObj = extension.get("image");
+
+            if (imageObj != null) {
+                this.image = imageObj.toString();
+            }
+        }
+    }
+
 
     @Override
     public boolean equals(Object o) {

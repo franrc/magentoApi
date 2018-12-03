@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;
+import java.util.List;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -49,6 +50,8 @@ public class Customer extends RealmObject implements Parcelable {
     private String prefix;
     private String suffix;
     private int gender;
+
+    private List<Address> addresses;
 
     @JsonProperty("store_id")
     private Long storeId;
@@ -210,6 +213,23 @@ public class Customer extends RealmObject implements Parcelable {
         this.websiteId = websiteId;
     }
 
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
+    }
+
+
     @Override
     public int describeContents() {
         return 0;
@@ -225,6 +245,7 @@ public class Customer extends RealmObject implements Parcelable {
         dest.writeLong(this.createdAt != null ? this.createdAt.getTime() : -1);
         dest.writeLong(this.updatedAt != null ? this.updatedAt.getTime() : -1);
         dest.writeString(this.createdIn);
+        dest.writeString(this.telephone);
         dest.writeString(this.dob);
         dest.writeString(this.email);
         dest.writeString(this.firstname);
@@ -233,10 +254,10 @@ public class Customer extends RealmObject implements Parcelable {
         dest.writeString(this.prefix);
         dest.writeString(this.suffix);
         dest.writeInt(this.gender);
+        dest.writeTypedList(this.addresses);
         dest.writeValue(this.storeId);
         dest.writeString(this.taxvat);
         dest.writeInt(this.websiteId);
-        dest.writeString(this.telephone);
     }
 
     public Customer() {
@@ -253,6 +274,7 @@ public class Customer extends RealmObject implements Parcelable {
         long tmpUpdatedAt = in.readLong();
         this.updatedAt = tmpUpdatedAt == -1 ? null : new Date(tmpUpdatedAt);
         this.createdIn = in.readString();
+        this.telephone = in.readString();
         this.dob = in.readString();
         this.email = in.readString();
         this.firstname = in.readString();
@@ -261,13 +283,13 @@ public class Customer extends RealmObject implements Parcelable {
         this.prefix = in.readString();
         this.suffix = in.readString();
         this.gender = in.readInt();
+        this.addresses = in.createTypedArrayList(Address.CREATOR);
         this.storeId = (Long) in.readValue(Long.class.getClassLoader());
         this.taxvat = in.readString();
         this.websiteId = in.readInt();
-        this.telephone = in.readString();
     }
 
-    public static final Parcelable.Creator<Customer> CREATOR = new Parcelable.Creator<Customer>() {
+    public static final Creator<Customer> CREATOR = new Creator<Customer>() {
         @Override
         public Customer createFromParcel(Parcel source) {
             return new Customer(source);
