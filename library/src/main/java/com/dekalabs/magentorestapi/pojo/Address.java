@@ -3,8 +3,10 @@ package com.dekalabs.magentorestapi.pojo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +28,7 @@ public class Address extends RealmObject implements Parcelable {
     private String company;
 
     private String regionCode;
+    @JsonIgnore
     private String region;
     private Long regionId;
     private String countryId;
@@ -90,6 +93,7 @@ public class Address extends RealmObject implements Parcelable {
         return region;
     }
 
+    @JsonGetter
     public void setRegion(String region) {
         this.region = region;
     }
@@ -223,6 +227,31 @@ public class Address extends RealmObject implements Parcelable {
 //            }
 //        }
 //    }
+
+    @SuppressWarnings("unchecked")
+    @JsonSetter("region")
+    private void unpackRegion(Map<String,Object> attrs) {
+
+        if(attrs != null) {
+            Object codeObj = attrs.get("region_code");
+
+            if(codeObj != null) {
+                this.regionCode = codeObj.toString();
+            }
+
+            Object regionObj = attrs.get("region");
+
+            if(regionObj != null) {
+                this.region = regionObj.toString();
+            }
+
+            Object idObj = attrs.get("region_id");
+
+            if(idObj != null) {
+                this.regionId = Long.valueOf(idObj.toString());
+            }
+        }
+    }
 
     @SuppressWarnings("unchecked")
     @JsonProperty("customAttributes")
