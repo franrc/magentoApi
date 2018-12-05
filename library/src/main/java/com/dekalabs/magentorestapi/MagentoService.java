@@ -16,6 +16,7 @@ import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
 import com.dekalabs.magentorestapi.dto.ShippingAddressDTO;
+import com.dekalabs.magentorestapi.dto.UpdateCustomerDTO;
 import com.dekalabs.magentorestapi.pojo.Address;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CategoryViews;
@@ -65,7 +66,7 @@ public interface MagentoService {
     Call<Customer> getMe();
 
     @PUT("customers/me")
-    Call<Customer> updateCustomer(@Body Customer customer);
+    Call<Customer> updateCustomer(@Body UpdateCustomerDTO customer);
 
     @GET("categories/list")
     Call<MagentoListResponse<Category>> getCategoriesByParent(@QueryMap Map<String, String> parameters);

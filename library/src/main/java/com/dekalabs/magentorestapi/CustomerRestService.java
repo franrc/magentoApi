@@ -13,6 +13,7 @@ import com.dekalabs.magentorestapi.dto.PlaceOrderDTO;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
 import com.dekalabs.magentorestapi.dto.ShippingAddressDTO;
+import com.dekalabs.magentorestapi.dto.UpdateCustomerDTO;
 import com.dekalabs.magentorestapi.handler.FinishHandler;
 import com.dekalabs.magentorestapi.pojo.Address;
 import com.dekalabs.magentorestapi.pojo.Customer;
@@ -468,7 +469,7 @@ public class CustomerRestService extends MagentoRestService {
 
         customer.setAddresses(addresses);
 
-        executeSimpleOnline(callback, service.updateCustomer(customer));
+        executeSimpleOnline(callback, service.updateCustomer(new UpdateCustomerDTO(customer)));
 
     }
 
