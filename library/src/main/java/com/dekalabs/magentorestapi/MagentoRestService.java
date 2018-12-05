@@ -28,6 +28,7 @@ import com.dekalabs.magentorestapi.pojo.CategoryViews;
 import com.dekalabs.magentorestapi.pojo.CustomAttribute;
 import com.dekalabs.magentorestapi.pojo.Customer;
 import com.dekalabs.magentorestapi.pojo.Product;
+import com.dekalabs.magentorestapi.pojo.cart.ShoppingCart;
 import com.dekalabs.magentorestapi.pojo.review.ReviewItem;
 import com.dekalabs.magentorestapi.utils.FilterOptions;
 import com.dekalabs.magentorestapi.utils.FinalInteger;
@@ -1155,10 +1156,37 @@ public class MagentoRestService extends DKRestService<MagentoService> {
     }
 
     /** CUSTOMER **/
+
+    public void isUserSessionActive(ServiceCallback<Boolean> callback) {
+        if(new MagentoDatabaseUtils().getCurrentCustomer() != null) {
+            new CustomerRestService(currentContext).getCart(new ServiceCallbackOnlyOnServiceResults<ShoppingCart>() {
+                @Override
+                public void onResults(ShoppingCart results) {
+                    callback.onResults(true);
+                }
+
+                @Override
+                public void onError(int errorCode, String message) {
+                    if(errorCode == 401) {
+                        new MagentoDatabaseUtils().clearCustomer();
+                        new MagentoDatabaseUtils().clearCheckoutDatabase(true);
+
+                        callback.onResults(false);
+                    }
+                }
+            });
+        }
+        else {
+            callback.onResults(false);
+        }
+
+    }
+
     public void isLoggedCustomer(ServiceCallback<Boolean> callback) {
         callback.onResults(new MagentoDatabaseUtils().getCurrentCustomer() != null);
         callback.onFinish();
     }
+
     public void createCustomer(CustomerRegisterDTO customer, ServiceCallback<Customer> callback) {
         ServiceCallback<Customer> firstCallback = new ServiceCallback<Customer>() {
             @Override

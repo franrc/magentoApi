@@ -106,10 +106,12 @@ public class Address extends RealmObject implements Parcelable {
         this.regionId = regionId;
     }
 
+    @JsonGetter("countryId")
     public String getCountryId() {
         return countryId;
     }
 
+    @JsonSetter("country_id")
     public void setCountryId(String countryId) {
         this.countryId = countryId;
     }

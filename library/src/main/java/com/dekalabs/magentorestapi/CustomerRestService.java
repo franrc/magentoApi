@@ -94,6 +94,7 @@ public class CustomerRestService extends MagentoRestService {
                 @Override
                 public void onError(int errorCode, String message) {
                     callback.onError(errorCode, message);
+                    callback.onFinish();
                 }
             });
         }
@@ -153,6 +154,7 @@ public class CustomerRestService extends MagentoRestService {
                     @Override
                     public void onError(int errorCode, String message) {
                         callback.onError(errorCode, message);
+                        callback.onFinish();
                     }
                 });
             }
