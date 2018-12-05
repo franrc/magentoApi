@@ -33,4 +33,9 @@ public class MagentoSettings {
         SharedPreferences prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
         return prefs.getString(SESSIONID_COOKIE, null);
     }
+
+    public static void clear(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
+        prefs.edit().clear().commit();
+    }
 }

@@ -1171,6 +1171,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
                         new MagentoDatabaseUtils().clearCustomer();
                         new MagentoDatabaseUtils().clearCheckoutDatabase(true);
 
+                        MagentoSettings.clear(currentContext);
                         callback.onResults(false);
                     }
                 }
