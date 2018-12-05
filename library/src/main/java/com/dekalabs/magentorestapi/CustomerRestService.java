@@ -436,7 +436,7 @@ public class CustomerRestService extends MagentoRestService {
 
             @Override
             public void onResults(Customer results) {
-
+                manageUserAddresses(results, address, callback);
             }
 
             @Override
