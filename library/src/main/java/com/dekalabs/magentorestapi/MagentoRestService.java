@@ -22,6 +22,7 @@ import com.dekalabs.magentorestapi.dto.ProductSearchDTO;
 import com.dekalabs.magentorestapi.dto.ProductView;
 import com.dekalabs.magentorestapi.dto.ReviewPost;
 import com.dekalabs.magentorestapi.dto.ReviewResponseDTO;
+import com.dekalabs.magentorestapi.dto.UpdateCustomerDTO;
 import com.dekalabs.magentorestapi.handler.FinishHandler;
 import com.dekalabs.magentorestapi.pojo.Category;
 import com.dekalabs.magentorestapi.pojo.CategoryViews;
@@ -126,7 +127,7 @@ public class MagentoRestService extends DKRestService<MagentoService> {
 
     public void updateCustomer(Customer customer, ServiceCallbackOnlyOnServiceResults<MagentoResponse<Customer>> callback) {
 
-        executeOnline(callback, service.updateCustomer(customer));
+        executeOnline(callback, service.updateCustomer(new UpdateCustomerDTO(customer)));
     }
 
     public void getCategoryList(Long root, ServiceCallbackOnlyOnServiceResults<List<Category>> callback) {
